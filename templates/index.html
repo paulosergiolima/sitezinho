@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="static/css/style.css">
+<script src="static/js/main.js"></script>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="artes">
+        <div class="option">
+        	{% for image in images: %}
+                <input type="checkbox" name="{{image}}" id=""><img class="img-option" src="static/images/{{image}}" alt="">
+            {% endfor %}
+        </div>
+    </div>
+    <button onclick="vote()">Votar</button>
+    
+</body>
+</html>
