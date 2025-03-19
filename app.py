@@ -20,7 +20,7 @@ def hello_world():
 
 @app.route('/vote', methods = ['POST'])
 def vote():
-    f = open("logs.txt", "a")
+    f = open("logs.txt", 'a')
     uri = f'mongodb://sitezinho:sitezinho@urna-shard-00-00.yj774.mongodb.net:27017,urna-shard-00-01.yj774.mongodb.net:27017,urna-shard-00-02.yj774.mongodb.net:27017/?replicaSet=atlas-y8c7zw-shard-0&ssl=true&authSource=admin&retryWrites=true&w=majority&appName=urna'
     client = MongoClient(uri, server_api=ServerApi('1'))
     try:
