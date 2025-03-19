@@ -13,7 +13,7 @@ function vote() {
     console.log(votes)
     json_votes = JSON.stringify([username, votes])
     console.log(json_votes)
-    fetch('http://127.0.0.1:5000/vote', {
+    fetch('https://kinipk.pythonanywhere.com/vote', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
