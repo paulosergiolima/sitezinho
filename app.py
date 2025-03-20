@@ -8,10 +8,18 @@ from flask import Flask, after_this_request, render_template, request
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from dotenv import load_dotenv
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 load_dotenv()
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = load_dotenv("mysql_url")
+db = SQLAlchemy(app)
+
+class User(db.Model):
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    username: Mapped[str] = mapped_column(db.String, unique=True, nullable=False)
 
 @app.route('/')
 def hello_world():
@@ -21,24 +29,13 @@ def hello_world():
 @app.route('/vote', methods = ['POST'])
 def vote():
     f = open("logs.txt", 'a')
-    uri = f'mongodb://sitezinho:sitezinho@urna-shard-00-00.yj774.mongodb.net:27017,urna-shard-00-01.yj774.mongodb.net:27017,urna-shard-00-02.yj774.mongodb.net:27017/?replicaSet=atlas-y8c7zw-shard-0&ssl=true&authSource=admin&retryWrites=true&w=majority&appName=urna'
-    client = MongoClient(uri, server_api=ServerApi('1'))
-    try:
-        mydb = client["urna"]
-        votes = mydb["votes"]
-        json_request = request.json
-        ballot = {"Name": json_request[0], "Votes": request.json[1]}
-        f.write(f"Person votes: {ballot}")
-        print(ballot)
-        x = votes.insert_one(ballot)
-        f.write("The result of insertion : {x}")
-        print(x)
-    except Exception as e:
-        f.write(f"Error: {e}")
-        print(e)
-    client.close()
+    json_request = request.json
+    ballot = {"Name": json_request[0], "Votes": request.json[1]}
+    f.write(f"Person votes: {ballot}")
+    print(ballot)
+    f.write("The result of insertion : {x}")
     f.close()
     return "Worked"
 
-    
+
 
