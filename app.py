@@ -19,6 +19,7 @@ load_dotenv()
 app = Flask(__name__)
 mysql_url = "mysql+mysqldb://kinipk:kinipk@kinipk.mysql.pythonanywhere-services.com/kinipk$urna"
 print(mysql_url)
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle' : 280}
 app.config['SQLALCHEMY_DATABASE_URI'] = mysql_url
 db = SQLAlchemy(app)
 
@@ -49,6 +50,7 @@ def vote():
     new_user = User(username=json_request[0], votes=json_request[1])
     db.session.add(new_user)
     db.session.commit()
+    db.session.close()
     f.write("The result of insertion : {x}")
     f.close()
     return "Worked"
