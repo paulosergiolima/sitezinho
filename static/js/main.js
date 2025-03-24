@@ -13,7 +13,7 @@ function vote() {
     console.log(votes)
     json_votes = JSON.stringify([username, votes])
     console.log(json_votes)
-    fetch('https://kinipk.pythonanywhere.com/vote', {
+    fetch('vote', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -25,8 +25,3 @@ function vote() {
       .catch(error => console.error('Error:', error));
       
 }
-async function fetchAsync (url) {
-    let response = await fetch(url);
-    let data = await response.json();
-    return data;
-  }
