@@ -17,7 +17,7 @@ load_dotenv()
  #   pass
 
 app = Flask(__name__)
-mysql_url = "mysql+mysqldb://kinipk:kinipk@kinipk.mysql.pythonanywhere-services.com/kinipk$urna"
+mysql_url = "mysql+mysqldb://kinipk:senhazinha@kinipk.mysql.pythonanywhere-services.com/kinipk$urna"
 print(mysql_url)
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle' : 280}
 app.config['SQLALCHEMY_DATABASE_URI'] = mysql_url
