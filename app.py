@@ -11,6 +11,9 @@ from sqlalchemy import Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.types import JSON
 
+
+f = open("logs.txt", 'a')
+
 load_dotenv()
 
 #class Base(DeclarativeBase):
@@ -18,6 +21,7 @@ load_dotenv()
 
 app = Flask(__name__)
 mysql_url = "mysql+mysqldb://kinipk:senhazinha@kinipk.mysql.pythonanywhere-services.com/kinipk$urna"
+f.write(f'{mysql_url} \n')
 print(mysql_url)
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle' : 280}
 app.config['SQLALCHEMY_DATABASE_URI'] = mysql_url
@@ -43,10 +47,9 @@ def hello_world():
 
 @app.route('/vote', methods = ['POST'])
 def vote():
-    f = open("logs.txt", 'a')
     json_request = request.json
     ballot = {"Name": json_request[0], "Votes": request.json[1]}
-    f.write(f"Person votes: {ballot}")
+    f.write(f"Person votes: {ballot}\n")
     new_user = User(username=json_request[0], votes=json_request[1])
     db.session.add(new_user)
     db.session.commit()
