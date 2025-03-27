@@ -7,18 +7,15 @@ from flask import Flask, json, redirect, render_template, request
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Integer, String
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import JSON
 import zipfile
 import glob
 
-
+global unique_vote
+unique_vote = True
 f = open("logs.txt", 'a')
-
 load_dotenv()
-
-#class Base(DeclarativeBase):
- #   pass
 
 app = Flask(__name__)
 mysql_url = "mysql+mysqldb://sitezinho:sitezinho@localhost/kinipk$urna"
@@ -44,7 +41,9 @@ with app.app_context():
 @app.route('/')
 def hello_world():
     onlyfiles = [f for f in listdir("./static/images") if isfile(join("./static/images", f))]
-    return render_template('index.html', images = onlyfiles)
+    count = len(onlyfiles)
+    print(unique_vote)
+    return render_template('index.html', images = onlyfiles, unique_vote=unique_vote, count=count)
 
 @app.route('/vote', methods = ['POST'])
 def vote():
@@ -75,7 +74,8 @@ def count():
 
 @app.route('/admin')
 def admin():
-    return render_template('admin.html')
+    count_votes = db.session.query(User).count()
+    return render_template('admin.html', count=count_votes)
 @app.route('/insert', methods = ['POST'])
 def insert():
     uploaded_file = request.files['file']
@@ -88,10 +88,21 @@ def insert():
         os.remove(f)
     with zipfile.ZipFile(uploaded_file.filename, "a") as zip_ref:
         zip_ref.extractall("static/images")
-
     return redirect('/')
 @app.route('/delete', methods = ['DELETE'])
 def delete_votes():
     db.session.query(User).delete()
     db.session.commit()
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+
+@app.route('/change_vote_unique')
+def change_vote_unique():
+    global unique_vote
+    unique_vote = True
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+
+@app.route('/change_vote_multiple')
+def change_vote_multiple():
+    global unique_vote
+    unique_vote = False
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 

@@ -12,11 +12,18 @@
     <div class="artes">
         <div class="option">
         	{% for image in images: %}
-                <input type="checkbox" name="{{image}}" id=""><img class="img-option" src="static/images/{{image}}" alt="">
+                <input class="chk" type="checkbox" name="{{image}}" id=""><img class="img-option" src="static/images/{{image}}" alt="">
             {% endfor %}
         </div>
     </div>
     <button onclick="vote()">Votar</button>
-    
 </body>
+{% if unique_vote == True %}
+<script>
+$('input.chk').prop('checked', false)
+$('input.chk').on('change', function() {
+    $('input.chk').not(this).prop('checked', false);  
+});
+</script>
+  {% endif %}
 </html>

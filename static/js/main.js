@@ -56,3 +56,27 @@ if (single_vote == true) {
     }
   });
 }
+
+function change_vote_unique() {
+  fetch('/change_vote_unique', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+  })
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));
+}
+
+function change_vote_multiple() {
+  fetch('/change_vote_multiple', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+  })
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));
+}
