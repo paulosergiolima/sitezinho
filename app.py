@@ -1,12 +1,13 @@
 
 # It's okay man
+import datetime
 from os import listdir
 import os
 from os.path import isfile, join
 from flask import Flask, json, redirect, render_template, request
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Integer, String
+from sqlalchemy import DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import JSON
 import zipfile
@@ -26,9 +27,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = mysql_url
 db = SQLAlchemy(app)
 
 class User(db.Model):
+    
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String(50) ,unique=True, nullable=False)
     votes: Mapped[list] = mapped_column(JSON)
+    created: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.now())
 
     def __init__(self, *, username: str, votes: list):
         self.username = username
@@ -75,7 +78,8 @@ def count():
 @app.route('/admin')
 def admin():
     count_votes = db.session.query(User).count()
-    return render_template('admin.html', count=count_votes)
+    users = db.session.execute(db.select(User)).scalars().all()
+    return render_template('admin.html', count=count_votes, users=users)
 @app.route('/insert', methods = ['POST'])
 def insert():
     uploaded_file = request.files['file']

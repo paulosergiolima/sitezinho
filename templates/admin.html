@@ -14,9 +14,13 @@
       <p><input type="submit" value="Submit"></p>
       </form>
       Quantidade de votos {{count}} <br>
+      Votos: <br>
+      {% for user in users: %}
+                {{user.username}} votou ás {{user.created}} <br>
+        {% endfor %}
       <button onclick="delete_votes()">Deletar votos</button> <br>
       <button onclick="change_vote_unique()">Votar apenas em uma arte</button> <br>
-      <button onclick="change_vote_multiple()">Votar apenas várias artes</button>
+      <button onclick="change_vote_multiple()">Votar em várias artes</button>
 
 </body>
 </html>
