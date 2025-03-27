@@ -1,11 +1,9 @@
 
 # It's okay man
-from operator import xor
 from os import listdir
 import os
 from os.path import isfile, join
-from bson import BSON
-from flask import Flask, after_this_request, json, redirect, render_template, request, url_for
+from flask import Flask, json, redirect, render_template, request
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Integer, String
