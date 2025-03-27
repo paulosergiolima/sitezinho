@@ -13,7 +13,7 @@ function vote() {
     console.log(votes)
     json_votes = JSON.stringify([username, votes])
     console.log(json_votes)
-    fetch('localhost/vote', {
+    fetch('/vote', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -1,5 +1,6 @@
 
 # A very simple Flask Hello World app for you to get started with...
+from operator import xor
 from os import listdir
 import os
 from os.path import isfile, join
@@ -53,10 +54,25 @@ def vote():
     new_user = User(username=json_request[0], votes=json_request[1])
     db.session.add(new_user)
     db.session.commit()
-    db.session.close()
     f.write("The result of insertion : {x}")
-    f.close()
     return "Worked"
+
+@app.route('/count')
+def count():
+    secret_votes = []
+    users = db.session.execute(db.select(User).order_by(User.username)).scalars()
+    for user_id, user in enumerate(users):
+        secret_votes.append(user.votes)
+    secret_votes = [
+        x 
+        for xs in secret_votes
+        for x in xs
+    ]
+    votes = {i:secret_votes.count(i) for i in secret_votes}
+    votes = {k: v for k, v in sorted(votes.items(), key=lambda item: item[1], reverse=True)}
+    for key, value in votes.items():
+        print(key, value)
+    return render_template('count.html', images = votes)
 
 
 
