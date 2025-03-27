@@ -26,6 +26,18 @@ function vote() {
       
 }
 
+function delete_votes() {
+  fetch('/delete', {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+  })
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));
+
+}
 
 if (single_vote == true) {
   $("input:checkbox").on('click', function() {

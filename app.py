@@ -1,16 +1,18 @@
 
-# A very simple Flask Hello World app for you to get started with...
+# It's okay man
 from operator import xor
 from os import listdir
 import os
 from os.path import isfile, join
 from bson import BSON
-from flask import Flask, after_this_request, json, render_template, request
+from flask import Flask, after_this_request, json, redirect, render_template, request, url_for
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.types import JSON
+import zipfile
+import glob
 
 
 f = open("logs.txt", 'a')
@@ -55,8 +57,7 @@ def vote():
     db.session.add(new_user)
     db.session.commit()
     f.write("The result of insertion : {x}")
-    return "Worked"
-
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 @app.route('/count')
 def count():
     secret_votes = []
@@ -74,5 +75,25 @@ def count():
         print(key, value)
     return render_template('count.html', images = votes)
 
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
+@app.route('/insert', methods = ['POST'])
+def insert():
+    uploaded_file = request.files['file']
+    if uploaded_file.filename != '':
+        uploaded_file.save(uploaded_file.filename)
 
+    #it's a zip file
+    files = glob.glob('static/images/*')
+    for f in files:
+        os.remove(f)
+    with zipfile.ZipFile(uploaded_file.filename, "a") as zip_ref:
+        zip_ref.extractall("static/images")
 
+    return redirect('/')
+@app.route('/delete', methods = ['DELETE'])
+def delete_votes():
+    db.session.query(User).delete()
+    db.session.commit()
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
