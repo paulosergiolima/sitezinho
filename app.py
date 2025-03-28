@@ -19,7 +19,7 @@ f = open("logs.txt", 'a')
 load_dotenv()
 
 app = Flask(__name__)
-mysql_url = "mysql+mysqldb://kinipk:kinipk@senhazinha.mysql.pythonanywhere-services.com/kinipk$urna"
+mysql_url = "mysql+mysqldb://kinipk:senhazinha@kinipk.mysql.pythonanywhere-services.com/kinipk$urna"
 f.write(f'{mysql_url} \n')
 print(mysql_url)
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle' : 280}
