@@ -12,6 +12,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import JSON
 import zipfile
 import glob
+from zoneinfo import ZoneInfo
 
 global unique_vote
 unique_vote = True
@@ -31,7 +32,7 @@ class User(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String(50) ,unique=True, nullable=False)
     votes: Mapped[list] = mapped_column(JSON)
-    created: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.now())
+    created: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.now(ZoneInfo("America/Sao_Paulo")))
 
     def __init__(self, *, username: str, votes: list):
         self.username = username
