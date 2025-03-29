@@ -12,6 +12,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import JSON
 import zipfile
 import glob
+from zoneinfo import ZoneInfo
 
 global unique_vote
 unique_vote = True
@@ -24,8 +25,8 @@ f.write(f'{mysql_url} \n')
 print(mysql_url)
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle' : 280}
 app.config['SQLALCHEMY_DATABASE_URI'] = mysql_url
-db = SQLAlchemy(app)
 
+db = SQLAlchemy(app)
 class User(db.Model):
     
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -45,7 +46,7 @@ with app.app_context():
 def hello_world():
     onlyfiles = [f for f in listdir("./static/images") if isfile(join("./static/images", f))]
     count = len(onlyfiles)
-    print(unique_vote)
+    print(datetime.datetime.now(ZoneInfo("America/Sao_Paulo")).second)
     return render_template('index.html', images = onlyfiles, unique_vote=unique_vote, count=count)
 
 @app.route('/vote', methods = ['POST'])
