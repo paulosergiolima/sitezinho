@@ -20,7 +20,7 @@ f = open("logs.txt", 'a')
 load_dotenv()
 
 app = Flask(__name__)
-mysql_url = "mysql+mysqldb://sitezinho:sitezinho@localhost/kinipk$urna"
+mysql_url = "mysql+mysqldb://kinipk:senhazinha@kinipk.mysql.pythonanywhere-services.com/kinipk$urna"
 f.write(f'{mysql_url} \n')
 print(mysql_url)
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle' : 280}
@@ -32,11 +32,12 @@ class User(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String(50) ,unique=True, nullable=False)
     votes: Mapped[list] = mapped_column(JSON)
-    created: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.now())
+    created: Mapped[datetime.datetime] = mapped_column(DateTime)
 
-    def __init__(self, *, username: str, votes: list):
+    def __init__(self, *, username: str, votes: list, created: datetime.datetime):
         self.username = username
         self.votes = votes
+        self.created = created
 
 
 with app.app_context():
@@ -54,7 +55,7 @@ def vote():
     json_request = request.json
     ballot = {"Name": json_request[0], "Votes": request.json[1]}
     f.write(f"Person votes: {ballot}\n")
-    new_user = User(username=json_request[0], votes=json_request[1])
+    new_user = User(username=json_request[0], votes=json_request[1], created=datetime.datetime.now(ZoneInfo("America/Sao_Paulo")))
     db.session.add(new_user)
     db.session.commit()
     f.write("The result of insertion : {x}")
