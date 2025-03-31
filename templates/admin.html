@@ -16,8 +16,10 @@
       Quantidade de votos {{count}} <br>
       Votos: <br>
       {% for user in users: %}
+                <button onclick="delete_vote('{{user.id}}')">Deletar voto</button>
                 {{user.username}} votou ás {{user.created}} <br>
         {% endfor %}
+        <br>
       <button onclick="delete_votes()">Deletar votos</button> <br>
       <button onclick="change_vote_unique()">Votar apenas em uma arte</button> <br>
       <button onclick="change_vote_multiple()">Votar em várias artes</button>

@@ -112,3 +112,14 @@ def change_vote_multiple():
     global unique_vote
     unique_vote = False
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+
+@app.route('/delete_vote', methods = ['DELETE'])
+def delete_vote():
+    json_request = request.json
+    print(json_request[0])
+    user = db.get_or_404(User, json_request[0])
+    db.session.delete(user)
+    db.session.commit()
+    print(user)
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+

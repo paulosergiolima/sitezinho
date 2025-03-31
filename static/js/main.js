@@ -80,3 +80,19 @@ function change_vote_multiple() {
   .then(data => console.log(data))
   .catch(error => console.error('Error:', error));
 }
+
+function delete_vote(id) {
+  json_vote = JSON.stringify(id)
+  console.log(id)
+  fetch('/delete_vote', {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: json_vote
+  })
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .then(data => location.reload())
+  .catch(error => console.error('Error:', error));
+}
