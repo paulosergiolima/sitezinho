@@ -116,8 +116,9 @@ def change_vote_multiple():
 @app.route('/delete_vote', methods = ['DELETE'])
 def delete_vote():
     json_request = request.json
-    print(json_request[0])
-    user = db.get_or_404(User, json_request[0])
+    print(json_request)
+    user = db.get_or_404(User, json_request)
+    print(user)
     db.session.delete(user)
     db.session.commit()
     print(user)

@@ -84,6 +84,8 @@ function change_vote_multiple() {
 function delete_vote(id) {
   json_vote = JSON.stringify(id)
   console.log(id)
+  console.log(json_vote)
+  console.log("eu te amo robert")
   fetch('/delete_vote', {
     method: 'DELETE',
     headers: {
