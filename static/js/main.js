@@ -1,4 +1,3 @@
-url = "localhost:8080/vote"
 single_vote = false
 function vote() {
     var string = "voted"
