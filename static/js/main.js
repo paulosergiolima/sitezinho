@@ -1,6 +1,15 @@
 url = "localhost:8080/vote"
 single_vote = false
 function vote() {
+    var string = "voted"
+    const myBoolean = JSON.parse(localStorage.getItem("voted"));
+    if (myBoolean === true) {
+      console.log("voto não contado")
+      alert("seu voto não vai ser contabilizado, por vocêr votar mais de uma vez")
+      return
+    }
+    console.log(myBoolean)
+    localStorage.setItem("voted", JSON.stringify(true));
     username = prompt("Qual seu usário?")
     let votes = new Array()
     var inputs = document.querySelectorAll("input[type='checkbox']");
