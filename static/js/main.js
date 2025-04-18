@@ -1,38 +1,47 @@
 single_vote = false
-function vote() {
-    var string = "voted"
-    const myBoolean = JSON.parse(localStorage.getItem("voted"));
-    if (myBoolean === true) {
-      console.log("voto não contado")
-      alert("seu voto não vai ser contabilizado, por vocêr votar mais de uma vez")
-      return
-    }
-    console.log(myBoolean)
-    localStorage.setItem("voted", JSON.stringify(true));
-    username = prompt("Qual seu usário?")
-    let votes = new Array()
-    var inputs = document.querySelectorAll("input[type='checkbox']");
-    for(var i = 0; i < inputs.length; i++) {
-        if(inputs[i].checked === true) {
-            votes.push(inputs[i].name)
+async function vote() {
+  try {
+    const checkResponse = await fetch('/voted');
+    console.log(checkResponse)
+    const alreadyVoted = await checkResponse.json();
+    console.log(alreadyVoted)
 
-        }
+    console.log('Flag is:', alreadyVoted);
+
+    if (alreadyVoted.voted) {
+      alert("Seu voto não vai ser contabilizado, por votar mais de uma vez");
+      return;
     }
-    console.log(votes)
-    json_votes = JSON.stringify([username, votes])
-    console.log(json_votes)
-    fetch('/vote', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: json_votes
-      })
-      .then(response => response.json())
-      .then(data => console.log(data))
-      .catch(error => console.error('Error:', error));
-      
+
+    // Only ask for username if user can vote
+    const username = prompt("Qual seu usuário?");
+    const votes = [];
+
+    const inputs = document.querySelectorAll("input[type='checkbox']");
+    for (let i = 0; i < inputs.length; i++) {
+      if (inputs[i].checked === true) {
+        votes.push(inputs[i].name);
+      }
+    }
+
+    const json_votes = JSON.stringify([username, votes]);
+
+    const voteResponse = await fetch('/vote', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: json_votes
+    });
+
+    const result = await voteResponse.json();
+    console.log(result);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
 }
+
 
 function delete_votes() {
   fetch('/delete', {
@@ -91,9 +100,6 @@ function change_vote_multiple() {
 
 function delete_vote(id) {
   json_vote = JSON.stringify(id)
-  console.log(id)
-  console.log(json_vote)
-  console.log("eu te amo robert")
   fetch('/delete_vote', {
     method: 'DELETE',
     headers: {

@@ -4,7 +4,7 @@ import datetime
 from os import listdir
 import os
 from os.path import isfile, join
-from flask import Flask, json, redirect, render_template, request
+from flask import Flask, json, jsonify, redirect, render_template, request, session
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import DateTime, Integer, String
@@ -25,6 +25,11 @@ f.write(f'{mysql_url} \n')
 print(mysql_url)
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle' : 280}
 app.config['SQLALCHEMY_DATABASE_URI'] = mysql_url
+app.secret_key = os.getenv("secret_key")
+app.permanent_session_lifetime = datetime.timedelta(days=1)
+app.config.update(
+    SESSION_COOKIE_SAMESITE='Lax',
+)
 
 db = SQLAlchemy(app)
 class User(db.Model):
@@ -52,12 +57,14 @@ def hello_world():
 
 @app.route('/vote', methods = ['POST'])
 def vote():
+    session.permanent = True
     json_request = request.json
     ballot = {"Name": json_request[0], "Votes": request.json[1]}
     f.write(f"Person votes: {ballot}\n")
     new_user = User(username=json_request[0], votes=json_request[1], created=datetime.datetime.now(ZoneInfo("America/Sao_Paulo")))
     db.session.add(new_user)
     db.session.commit()
+    session["voted"] = True
     f.write("The result of insertion : {x}")
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 @app.route('/count')
@@ -123,4 +130,8 @@ def delete_vote():
     db.session.commit()
     print(user)
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+@app.route('/voted')
+def voted():
+    flag = session.get("voted", False)
+    return jsonify({'voted': flag})
 
