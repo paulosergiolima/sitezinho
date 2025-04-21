@@ -10,8 +10,8 @@ async function vote() {
 
     if (alreadyVoted.voted) {
       console.log("hi")
-      //alert("Seu voto não vai ser contabilizado, por votar mais de uma vez");
-      //return;
+      alert("Seu voto não vai ser contabilizado, por votar mais de uma vez");
+      return;
     }
 
     // Only ask for username if user can vote
