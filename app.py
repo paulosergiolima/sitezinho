@@ -7,6 +7,8 @@ from os.path import isfile, join
 from flask import Flask, json, jsonify, redirect, render_template, request, session
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
+from flask_session import Session
+import flask_sqlalchemy
 from sqlalchemy import DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import JSON
@@ -22,9 +24,13 @@ load_dotenv()
 
 
 app = Flask(__name__)
+
+
+
 mysql_url = os.getenv("mysql_url")
 f.write(f'{mysql_url} \n')
 print(mysql_url)
+app.config['SESSION_TYPE'] = "sqlalchemy"
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle' : 280}
 app.config['SQLALCHEMY_DATABASE_URI'] = mysql_url
 app.config['SESSION_REFRESH_EACH_REQUEST'] = False
@@ -34,7 +40,12 @@ app.config.update(
     SESSION_COOKIE_SAMESITE='Lax',
 )
 
+SESSION_TYPE = 'sqlalchemy' 
+SESSION_SQLALCHEMY = Session()
+
 db = SQLAlchemy(app)
+app.config['SESSION_SQLALCHEMY'] = db
+Session(app)
 class User(db.Model):
     
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -109,6 +120,7 @@ def insert():
 @app.route('/delete', methods = ['DELETE'])
 def delete_votes():
     db.session.query(User).delete()
+    SessionModel = app.session_interface.session
     db.session.commit()
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 
