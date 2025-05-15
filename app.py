@@ -41,6 +41,7 @@ app.config.update(
 )
 
 SESSION_TYPE = 'sqlalchemy' 
+SESSION_DATABASE_URI = mysql_url
 SESSION_SQLALCHEMY = Session()
 
 db = SQLAlchemy(app)
