@@ -12,5 +12,8 @@ in pkgs.mkShell {
       python-pkgs.flask-mysqldb
     ]))
     pkgs.ruff
+    pkgs.superhtml
+    pkgs.vscode-langservers-extracted
+    pkgs.typescript-language-server
   ];
 }
