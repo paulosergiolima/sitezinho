@@ -13,9 +13,9 @@
 <body>
   <div class="artes">
     <div class="option">
-      {% for key, value in images.items(): %}
+      {% for key, value in votes.items(): %}
       <img class="img-option" src="static/images/{{key}}" alt="">
-      Votos: {{value}}
+      Quem votou nessa: {{value}}
       {% endfor %}
     </div>
   </div>

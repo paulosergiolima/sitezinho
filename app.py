@@ -12,6 +12,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import JSON
 import zipfile
 import glob
+from collections import Counter
 from zoneinfo import ZoneInfo
 
 global unique_vote
@@ -138,4 +139,14 @@ def delete_vote():
 def voted():
     flag = session.get("voted", False)
     return jsonify({'voted': flag})
-
+@app.route('/votes')
+def votes():
+    votes = {}
+    users = db.session.query(User).all()
+    for user in users:
+        for vote in user.votes:
+            if vote not in votes:
+                votes[vote] = set()
+            votes[vote].add(user.username)
+    print(votes)
+    return render_template('votes.html', votes=votes)
