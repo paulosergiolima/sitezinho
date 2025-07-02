@@ -138,4 +138,10 @@ def delete_vote():
 def voted():
     flag = session.get("voted", False)
     return jsonify({'voted': flag})
-
+@app.route('/votes')
+def votes():
+    users = db.session.query(User).all()
+    for user in users:
+        print(user.votes)
+    print(users)
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
