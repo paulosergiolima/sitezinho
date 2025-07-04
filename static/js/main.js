@@ -41,6 +41,7 @@ async function vote() {
   } catch (error) {
     console.error('Error:', error);
   }
+  alert("Seu voto foi contabilizado")
 }
 
 
