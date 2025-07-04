@@ -88,8 +88,6 @@ def count():
     ]
     votes = {i:secret_votes.count(i) for i in secret_votes}
     votes = {k: v for k, v in sorted(votes.items(), key=lambda item: item[1], reverse=True)}
-    for key, value in votes.items():
-        print(key, value)
     return render_template('count.html', images = votes)
 
 @app.route('/admin')
