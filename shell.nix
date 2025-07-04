@@ -12,6 +12,7 @@ in pkgs.mkShell {
       python-pkgs.flask-mysqldb
       python-pkgs.jedi-language-server
       python-pkgs.python-lsp-server
+      python-pkgs.flask-session
     ]))
     pkgs.ruff
     pkgs.superhtml
