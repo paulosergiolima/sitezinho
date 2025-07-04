@@ -18,5 +18,7 @@ in pkgs.mkShell {
     pkgs.superhtml
     pkgs.vscode-langservers-extracted
     pkgs.typescript-language-server
+    pkgs.yaml-language-server
+    pkgs.ansible-language-server
   ];
 }
