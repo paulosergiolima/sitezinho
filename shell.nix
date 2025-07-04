@@ -20,5 +20,7 @@ in pkgs.mkShell {
     pkgs.typescript-language-server
     pkgs.yaml-language-server
     pkgs.ansible-language-server
+    pkgs.marksman
+    pkgs.markdown-oxide
   ];
 }
