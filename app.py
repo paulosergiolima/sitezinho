@@ -16,6 +16,7 @@ import glob
 from zoneinfo import ZoneInfo
 
 global unique_vote
+FILENAME = "artes.zip"
 unique_vote = True
 f = open("logs.txt", 'a')
 load_dotenv()
@@ -99,13 +100,13 @@ def admin():
 def insert():
     uploaded_file = request.files['file']
     if uploaded_file.filename != '':
-        uploaded_file.save(uploaded_file.filename)
+        uploaded_file.save(FILENAME)
 
     #it's a zip file
     files = glob.glob('static/images/*')
     for f in files:
         os.remove(f)
-    with zipfile.ZipFile(uploaded_file.filename, "a") as zip_ref:
+    with zipfile.ZipFile(FILENAME, "a") as zip_ref:
         zip_ref.extractall("static/images")
     session.clear()
     return redirect('/')
