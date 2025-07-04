@@ -5,6 +5,7 @@ from os import listdir
 import os
 from os.path import isfile, join
 from flask import Flask, json, jsonify, redirect, render_template, request, session
+from flask_session import Session
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import DateTime, Integer, String
@@ -12,7 +13,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import JSON
 import zipfile
 import glob
-from collections import Counter
 from zoneinfo import ZoneInfo
 
 global unique_vote
@@ -26,6 +26,7 @@ app = Flask(__name__)
 mysql_url = os.getenv("mysql_url")
 f.write(f'{mysql_url} \n')
 print(mysql_url)
+app.config['SESSION_TYPE'] = 'sqlalchemy'
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle' : 280}
 app.config['SQLALCHEMY_DATABASE_URI'] = mysql_url
 app.config['SESSION_REFRESH_EACH_REQUEST'] = False
@@ -36,6 +37,8 @@ app.config.update(
 )
 
 db = SQLAlchemy(app)
+app.config['SESSION_SQLALCHEMY'] = db
+Session(app)
 class User(db.Model):
     
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -106,10 +109,12 @@ def insert():
         os.remove(f)
     with zipfile.ZipFile(uploaded_file.filename, "a") as zip_ref:
         zip_ref.extractall("static/images")
+    session.clear()
     return redirect('/')
 @app.route('/delete', methods = ['DELETE'])
 def delete_votes():
     db.session.query(User).delete()
+    session.clear()
     db.session.commit()
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 
