@@ -1,0 +1,10 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"          # adjust if dependencies in subfolder
+    schedule:
+      interval: "daily"     # or weekly/monthly
+    groups:
+      python-packages:
+        patterns:
+          - "*"
