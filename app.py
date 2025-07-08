@@ -80,7 +80,6 @@ def vote():
     )
     db.session.add(new_user)
     db.session.commit()
-    session.permanent = True
     session["voted"] = True
     f.write("The result of insertion : {x}")
     return json.dumps({"success": True}), 200, {"ContentType": "application/json"}
@@ -126,7 +125,10 @@ def insert():
 @app.route("/delete", methods=["DELETE"])
 def delete_votes():
     db.session.query(User).delete()
+    print(session)
+    print("----")
     session.clear()
+    print(session)
     db.session.commit()
     return json.dumps({"success": True}), 200, {"ContentType": "application/json"}
 
