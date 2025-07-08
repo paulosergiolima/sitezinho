@@ -127,10 +127,10 @@ def insert():
 def delete_votes():
     db.session.query(User).delete()
     print(session)
-    f.write(session)
+    f.write(f'{session.values}')
     f.write("----")
     session.clear()
-    f.write(session)
+    f.write(f'{session.values}')
     print(session)
     db.session.commit()
     return json.dumps({"success": True}), 200, {"ContentType": "application/json"}
