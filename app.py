@@ -26,6 +26,7 @@ mysql_url = os.getenv("mysql_url")
 f.write(f"{mysql_url} \n")
 print(mysql_url)
 app.config["SESSION_TYPE"] = "sqlalchemy"
+app.config["SESSION_SERIALIZATION_FORMAT"] = 'json'
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_recycle": 280}
 app.config["SQLALCHEMY_DATABASE_URI"] = mysql_url
 app.config["SESSION_REFRESH_EACH_REQUEST"] = False
