@@ -1,20 +1,6 @@
 single_vote = false
 async function vote() {
   try {
-    const checkResponse = await fetch('/voted');
-    console.log(checkResponse)
-    const alreadyVoted = await checkResponse.json();
-    console.log(alreadyVoted)
-
-    console.log('Flag is:', alreadyVoted);
-
-    if (alreadyVoted.voted) {
-      console.log("hi")
-      alert("Seu voto não vai ser contabilizado, por votar mais de uma vez");
-      return;
-    }
-
-    // Only ask for username if user can vote
     const username = prompt("Qual seu usuário?");
     const votes = [];
 
