@@ -26,6 +26,7 @@ mysql_url = os.getenv("mysql_url")
 f.write(f"{mysql_url} \n")
 print(mysql_url)
 app.config["SESSION_TYPE"] = "sqlalchemy"
+app.config["SESSION_SERIALIZATION_FORMAT"] = 'json'
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_recycle": 280}
 app.config["SQLALCHEMY_DATABASE_URI"] = mysql_url
 app.config["SESSION_REFRESH_EACH_REQUEST"] = False
@@ -80,7 +81,6 @@ def vote():
     )
     db.session.add(new_user)
     db.session.commit()
-    session.permanent = True
     session["voted"] = True
     f.write("The result of insertion : {x}")
     return json.dumps({"success": True}), 200, {"ContentType": "application/json"}
@@ -126,7 +126,12 @@ def insert():
 @app.route("/delete", methods=["DELETE"])
 def delete_votes():
     db.session.query(User).delete()
+    print(session)
+    f.write(f'{session.values}')
+    f.write("----")
     session.clear()
+    f.write(f'{session.values}')
+    print(session)
     db.session.commit()
     return json.dumps({"success": True}), 200, {"ContentType": "application/json"}
 
@@ -150,10 +155,8 @@ def delete_vote():
     json_request = request.json
     print(json_request)
     user = db.get_or_404(User, json_request)
-    print(user)
     db.session.delete(user)
     db.session.commit()
-    print(user)
     return json.dumps({"success": True}), 200, {"ContentType": "application/json"}
 
 
