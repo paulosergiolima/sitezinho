@@ -10,11 +10,12 @@
 </head>
 <body>
     <div class="artes">
-        <div class="option">
         	{% for image in images: %}
+            <div class="option">
                 <input class="chk" type="checkbox" name="{{image}}" id=""><img class="img-option" src="static/images/{{image}}" alt="">
+            </div>
             {% endfor %}
-        </div>
+        
     </div>
     <button onclick="vote()">Votar</button>
 </body>
