@@ -15,5 +15,5 @@ mysqlclient==2.2.7
 pymongo==4.14.1
 python-dotenv==1.1.1
 SQLAlchemy==2.0.43
-typing_extensions==4.14.1
+typing_extensions==4.15.0
 Werkzeug==3.1.3
