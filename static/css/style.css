@@ -863,9 +863,9 @@ header {
 /* Admin Container */
 .admin-container {
     margin: 0 auto;
-    padding: 2rem;
+    padding: 1rem;
     display: flex;
-    gap: 2rem;
+    gap: 1rem;
 }
 
 /* Admin Sections */
@@ -1243,7 +1243,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 1.5rem;
+    padding: 1rem 2rem;
     background: rgba(255, 255, 255, 0.8);
     border-radius: 10px;
     border: 1px solid rgba(102, 126, 234, 0.1);
@@ -1251,6 +1251,7 @@ header {
 
 .vote-info {
     flex: 1;
+    padding-right: 1rem;
 }
 
 .voter-name {

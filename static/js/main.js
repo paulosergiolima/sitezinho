@@ -13,6 +13,11 @@ async function vote() {
       return;
     }
 
+    if (username.length > 50) {
+      alert("Nome de usuário deve ter menos de 50 caracteres!");
+      return;
+    }
+
     // Check if user has already voted
     const checkResponse = await fetch('/check_user', {
       method: 'POST',
