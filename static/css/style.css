@@ -815,6 +815,7 @@ header {
 
 /* Admin Header */
 .admin-header {
+    width: 100%;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -822,6 +823,7 @@ header {
     position: sticky;
     top: 0;
     z-index: 100;
+    padding: 0% !important;
 }
 
 .admin-header-content {
@@ -829,8 +831,9 @@ header {
     margin: 0 auto;
     padding: 1.5rem 2rem;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Distributes title and button to opposite ends */
     align-items: center;
+    width: 100%; /* Ensures full width for proper space distribution */
 }
 
 .admin-header h1 {
@@ -845,7 +848,7 @@ header {
 }
 
 .back-btn {
-    margin-left: 1rem;
+    margin-left: auto; /* Pushes button to the right end of the container */
     /* Inherits base button styles */
 }
 
@@ -855,7 +858,6 @@ header {
     margin: 0 auto;
     padding: 2rem;
     display: flex;
-    flex-direction: column;
     gap: 2rem;
 }
 
@@ -870,7 +872,7 @@ header {
 }
 
 .section-header {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
     text-align: center;
 }
 
@@ -937,7 +939,8 @@ header {
     align-items: center;
     justify-content: center;
     gap: 1rem;
-    padding: 2rem;
+    padding: 3.5rem 2rem; /* Increased vertical padding for larger upload area */
+    min-height: 200px; /* Ensures minimum height for upload box */
     border: 2px dashed #cbd5e0;
     border-radius: 15px;
     background: linear-gradient(135deg, #f7fafc, #edf2f7);
@@ -1022,13 +1025,13 @@ header {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
 }
 
 .stat-card {
     background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
-    padding: 1.5rem;
+    padding: 0.5rem;
     border-radius: 15px;
     text-align: center;
     box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
@@ -1049,7 +1052,7 @@ header {
 .vote-controls {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1rem;
+    gap: 0.5rem;
 }
 
 .control-button {
@@ -1143,8 +1146,8 @@ header {
     background: rgba(255, 255, 255, 0.9);
     border: 2px solid rgba(102, 126, 234, 0.2);
     border-radius: 15px;
-    padding: 1.5rem;
-    margin: 1rem 0;
+    padding: 1rem;
+    margin: 0.5rem 0;
     backdrop-filter: blur(10px);
 }
 
@@ -1275,19 +1278,30 @@ header {
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
+
+    .admin-header {
+        align-items: center;
+        padding: 0% !important;
+    }
+
+    .admin-header a.back-btn {
+        margin-left: auto; /* Maintains right alignment on mobile */
+        flex-shrink: 0; /* Prevents button from shrinking */
+    }
+
     .admin-header-content {
-        flex-direction: column;
+        flex-direction: row;
         gap: 1rem;
-        text-align: center;
     }
     
     .admin-header h1 {
-        font-size: 1.5rem;
+        font-size: 1rem;
     }
     
     .admin-container {
         padding: 1rem;
         gap: 1.5rem;
+        flex-direction: column;
     }
     
     .admin-section {
@@ -1305,7 +1319,8 @@ header {
     }
     
     .file-input-label {
-        padding: 1.5rem;
+        padding: 2.5rem 1.5rem; /* Increased vertical padding for mobile but kept reasonable */
+        min-height: 150px; /* Smaller minimum height for mobile screens */
         flex-direction: column;
     }
 }
