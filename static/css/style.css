@@ -1,8 +1,1481 @@
-.img-option {
-    width: 10rem;
-    height: 10rem;
-    object-fit: cover;
+/* Reset and base styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
+
+
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 0;
+    padding-top: 100px; /* Space for fixed header */
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* ========================================
+   BUTTON BASE STYLES
+   ======================================== */
+
+/* Base button styling for consistency */
+.btn, 
+button:not(.control-btn):not(.close-modal):not(.delete-vote-btn) {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    text-transform: none;
+    letter-spacing: 0;
+    margin: 0;
+    min-width: 120px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.btn:hover, 
+button:not(.control-btn):not(.close-modal):not(.delete-vote-btn):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #5a67d8, #6b46c1);
+}
+
+.btn:active, 
+button:not(.control-btn):not(.close-modal):not(.delete-vote-btn):active {
+    transform: translateY(0);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Button variants */
+.btn-large {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    min-width: 140px;
+}
+
+.btn-small {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    min-width: 100px;
+}
+
+/* Header styling */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    max-width: 100%;
+}
+
+/* Header title section */
+.header-title {
+    flex: 1;
+}
+
+.header-title-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-title-container img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+}
+
+.header-title-container img:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.header-title h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+/* Header buttons section */
+.header-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.header-buttons button {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    min-width: 140px;
+    height: 48px;
+    box-sizing: border-box;
+    /* Inherits other base button styles */
+}
+
+/* Vote mode indicator styling */
+.vote-mode-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #2d3748;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    border-radius: 25px;
+    backdrop-filter: blur(10px);
+    white-space: nowrap;
+    min-width: 140px;
+    height: 48px;
+    box-sizing: border-box;
+    justify-content: center;
+}
+
+/* Main container for the art gallery */
+.artes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 2rem;
+    width: 100%;
+    max-width: 1700px;
+    margin: 0 auto;
+    padding: 2rem;
+    justify-content: center;
+}
+
+/* Individual art option container */
 .option {
-    display: inline-block;   
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 0.8rem;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.option:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 1);
+}
+
+/* Image label wrapper */
+.image-label {
+    cursor: pointer;
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Image container with overlay effects */
+.image-container {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 0.6rem;
+    background: #f8f9fa;
+}
+
+.img-option {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    display: block;
+    transition: all 0.3s ease;
+    border-radius: 12px;
+}
+
+.option:hover .img-option {
+    transform: scale(1.05);
+}
+
+/* Custom checkbox container */
+.checkbox-container {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 2;
+}
+
+/* Hide default checkbox */
+.chk {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Custom checkbox styling */
+.checkbox-custom {
+    position: relative;
+    display: block;
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.checkbox-custom:hover {
+    border-color: #667eea;
+    background: rgba(255, 255, 255, 1);
+}
+
+/* Checkbox checked state */
+.chk:checked + .checkbox-custom {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: #667eea;
+    transform: scale(1.1);
+}
+
+/* Checkmark icon */
+.chk:checked + .checkbox-custom::after {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 4px;
+    width: 8px;
+    height: 14px;
+    border: 2px solid white;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+    animation: checkmark 0.3s ease;
+}
+
+@keyframes checkmark {
+    0% {
+        opacity: 0;
+        transform: rotate(45deg) scale(0);
+    }
+    100% {
+        opacity: 1;
+        transform: rotate(45deg) scale(1);
+    }
+}
+
+/* View fullscreen button styling */
+.view-fullscreen-btn {
+    width: 100%;
+    margin-top: 0.5rem;
+    border-radius: 10px;
+    /* Inherits base button styles but overrides width and border-radius */
+}
+
+.btn-icon {
+    font-size: 1rem;
+    filter: brightness(1.2);
+}
+
+/* Vote button container styling */
+.vote-btn-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 25px;
+    padding: 2rem;
+    margin: 3rem auto;
+    max-width: 500px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vote-btn-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+.vote-btn-container:hover::before {
+    left: 100%;
+}
+
+.vote-btn-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+/* Main vote button styling */
+.vote-btn {
+    display: block;
+    margin: 0 auto;
+    padding: 1.2rem 4rem;
+    font-size: 1.3rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 50px;
+    min-width: 200px;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    position: relative;
+    z-index: 2;
+}
+
+.vote-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+}
+
+.vote-btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+
+
+/* Responsive design */
+@media (max-width: 768px) {
+    body {
+        padding-top: 120px; /* More space for mobile header */
+    }
+    
+    header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+        align-items: flex-start;
+    }
+    
+    .header-title {
+        width: 100%;
+    }
+    
+    .header-title-container {
+        justify-content: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .header-title-container img {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .header-title h1 {
+        font-size: 1.5rem;
+    }
+    
+    .header-buttons {
+        gap: 0.75rem;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        width: 100%;
+        flex-direction: row;
+    }
+    
+    .header-buttons button {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+        min-width: 110px;
+        height: 42px;
+        box-sizing: border-box;
+    }
+    
+    .btn, 
+    button:not(.control-btn):not(.close-modal):not(.delete-vote-btn) {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+        min-width: 100px;
+    }
+    
+    .btn-large {
+        padding: 0.8rem 1.6rem;
+        font-size: 1rem;
+        min-width: 120px;
+    }
+    
+    .vote-mode-indicator {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        min-width: 110px;
+        height: 42px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    
+    .artes {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.2rem;
+        padding: 1rem;
+    }
+    
+    .option {
+        padding: 0.8rem;
+    }
+    
+    .img-option {
+        height: 240px;
+    }
+    
+    .view-fullscreen-btn {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.85rem;
+        margin-top: 0.4rem;
+    }
+    
+    .vote-btn-container {
+        padding: 1.5rem;
+        margin: 2rem auto;
+        max-width: 400px;
+    }
+    
+    .vote-btn {
+        padding: 1rem 3rem;
+        font-size: 1.1rem;
+        min-width: 160px;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding-top: 140px; /* Even more space for very small screens */
+    }
+    
+    header {
+        padding: 0.75rem 1rem;
+        gap: 0.75rem;
+    }
+    
+    .header-title-container {
+        gap: 0.5rem;
+    }
+    
+    .header-title-container img {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .header-title h1 {
+        font-size: 1.3rem;
+    }
+    
+    .header-buttons {
+        flex-direction: row;
+        gap: 0.5rem;
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+    
+    .header-buttons button,
+    .vote-mode-indicator {
+        flex: 1;
+        min-width: 0;
+        max-width: none;
+        overflow: hidden;
+    }
+    
+    .artes {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem 0.5rem;
+    }
+    
+    .img-option {
+        height: 180px;
+    }
+    
+    .image-name {
+        font-size: 0.9rem;
+    }
+    
+    .vote-btn-container {
+        padding: 1rem;
+        margin: 1.5rem auto;
+        max-width: 300px;
+    }
+    
+    .vote-btn {
+        padding: 0.9rem 2.5rem;
+        font-size: 1rem;
+        min-width: 140px;
+        margin: 0 auto;
+    }
+}
+
+/* Loading animation for images */
+.img-option {
+    opacity: 0;
+    animation: fadeIn 0.6s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Add staggered animation delay for each option */
+.option:nth-child(1) .img-option { animation-delay: 0.1s; }
+.option:nth-child(2) .img-option { animation-delay: 0.2s; }
+.option:nth-child(3) .img-option { animation-delay: 0.3s; }
+.option:nth-child(4) .img-option { animation-delay: 0.4s; }
+.option:nth-child(5) .img-option { animation-delay: 0.5s; }
+.option:nth-child(6) .img-option { animation-delay: 0.6s; }
+
+/* Selection indicator overlay */
+.option:has(.chk:checked)::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    border-radius: 20px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.option:has(.chk:checked) {
+    border: 2px solid #667eea;
+    transform: translateY(-4px);
+    box-shadow: 0 25px 50px rgba(102, 126, 234, 0.2);
+}
+
+/* Modal styles for full view image */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    position: relative;
+    margin: auto;
+    padding: 2rem;
+    width: 90%;
+    max-width: 1200px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-modal {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    color: white;
+    font-size: 3rem;
+    font-weight: 300;
+    cursor: pointer;
+    z-index: 2001;
+    transition: all 0.3s ease;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.close-modal:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+/* Canvas container styling */
+.canvas-container {
+    position: relative;
+    width: 100%;
+    height: 70vh;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+    background: #1a1a1a;
+    cursor: grab;
+}
+
+.canvas-container:active {
+    cursor: grabbing;
+}
+
+.image-canvas {
+    display: block;
+    background: transparent;
+}
+
+/* Canvas controls styling */
+.canvas-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 25px;
+    backdrop-filter: blur(10px);
+}
+
+.control-btn {
+    padding: 0.75rem;
+    font-size: 1.2rem;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    backdrop-filter: blur(10px);
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.control-btn:active {
+    transform: scale(0.95);
+}
+
+.zoom-level {
+    color: white;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    min-width: 60px;
+    text-align: center;
+}
+
+.modal-info {
+    margin-top: 2rem;
+    text-align: center;
+    color: white;
+}
+
+.modal-info h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.modal-info p {
+    font-size: 1rem;
+    opacity: 0.8;
+    font-weight: 400;
+}
+
+/* Animation for modal */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modal-image {
+    animation: modalFadeIn 0.4s ease;
+}
+
+/* Mobile responsive for modal */
+@media (max-width: 768px) {
+    .modal-content {
+        padding: 1rem;
+    }
+    
+    .close-modal {
+        top: 1rem;
+        right: 1rem;
+        font-size: 2rem;
+        width: 40px;
+        height: 40px;
+    }
+    
+    .canvas-container {
+        height: 60vh;
+        border-radius: 10px;
+    }
+    
+    .canvas-controls {
+        gap: 0.5rem;
+        padding: 0.75rem;
+        margin-top: 1rem;
+    }
+    
+    .control-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    
+    .zoom-level {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+        min-width: 50px;
+    }
+    
+    .modal-info h3 {
+        font-size: 1.2rem;
+    }
+    
+    .modal-info p {
+        font-size: 0.9rem;
+    }
+}
+
+/* ========================================
+   ADMIN PAGE STYLES
+   ======================================== */
+
+.admin-body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 0;
+    margin: 0;
+}
+
+/* Admin Header */
+.admin-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.admin-header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.back-btn {
+    margin-left: 1rem;
+    /* Inherits base button styles */
+}
+
+/* Admin Container */
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Admin Sections */
+.admin-section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.section-header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.section-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 0.5rem 0;
+}
+
+.section-description {
+    color: #718096;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Upload Section */
+.upload-info {
+    margin-bottom: 2rem;
+}
+
+.upload-info h3 {
+    color: #4a5568;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.format-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.format-tag {
+    padding: 0.3rem 0.8rem;
+    background: linear-gradient(135deg, #edf2f7, #e2e8f0);
+    color: #4a5568;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.format-tag.zip {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+/* Upload Form */
+.upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.file-input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.file-input-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    border: 2px dashed #cbd5e0;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #f7fafc, #edf2f7);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.file-input-label:hover {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #edf2f7, #e2e8f0);
+    transform: translateY(-2px);
+}
+
+.file-input-label input[type="file"] {
+    display: none;
+}
+
+.file-icon {
+    font-size: 1.5rem;
+}
+
+.file-info {
+    font-size: 0.9rem;
+    color: #718096;
+    padding: 0.5rem;
+}
+
+.upload-btn {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    border-radius: 15px;
+    min-width: 160px;
+    /* Inherits base button styles but with custom sizing */
+}
+
+/* Alerts */
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-radius: 15px;
+    margin-top: 1rem;
+    backdrop-filter: blur(10px);
+}
+
+.alert-success {
+    background: rgba(72, 187, 120, 0.1);
+    border: 1px solid rgba(72, 187, 120, 0.3);
+    color: #2f855a;
+}
+
+.alert-error {
+    background: rgba(245, 101, 101, 0.1);
+    border: 1px solid rgba(245, 101, 101, 0.3);
+    color: #c53030;
+}
+
+.alert-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.alert-content strong {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.error-list {
+    margin: 0;
+    padding-left: 1rem;
+}
+
+.error-list li {
+    margin-bottom: 0.25rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+/* Vote Controls */
+.vote-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.control-button {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+}
+
+.control-button:hover {
+    background: rgba(255, 255, 255, 1);
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+}
+
+.control-button.danger:hover {
+    border-color: #e53e3e;
+    box-shadow: 0 10px 30px rgba(229, 62, 62, 0.2);
+}
+
+.control-button span {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.button-content {
+    flex: 1;
+}
+
+.button-title {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+}
+
+.button-description {
+    font-size: 0.9rem;
+    color: #718096;
+}
+
+/* Button feedback states */
+.control-button.feedback-success {
+    background: linear-gradient(135deg, #4CAF50, #45a049) !important;
+    border-color: #4CAF50 !important;
+    color: white !important;
+    transform: scale(1.02);
+    animation: successPulse 0.6s ease;
+}
+
+.control-button.feedback-error {
+    background: linear-gradient(135deg, #f44336, #da190b) !important;
+    border-color: #f44336 !important;
+    color: white !important;
+    transform: scale(1.02);
+    animation: errorShake 0.6s ease;
+}
+
+.control-button.feedback-success .button-title,
+.control-button.feedback-error .button-title {
+    color: white !important;
+}
+
+.control-button.feedback-success .button-description,
+.control-button.feedback-error .button-description {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+@keyframes successPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1.02); }
+}
+
+@keyframes errorShake {
+    0%, 100% { transform: translateX(0) scale(1.02); }
+    25% { transform: translateX(-5px) scale(1.02); }
+    75% { transform: translateX(5px) scale(1.02); }
+}
+
+/* Percentage Configuration */
+.percentage-config {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    backdrop-filter: blur(10px);
+}
+
+.config-header {
+    margin-bottom: 1rem;
+}
+
+.config-header h3 {
+    color: #2d3748;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+}
+
+.config-header p {
+    color: #718096;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.percentage-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.percentage-input-group label {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 0.95rem;
+}
+
+.input-with-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.input-with-button input[type="number"] {
+    padding: 0.75rem 1rem;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    border-radius: 10px;
+    font-size: 1rem;
+    width: 80px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+}
+
+.input-with-button input[type="number"]:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.percentage-symbol {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 1.1rem;
+}
+
+.percentage-info {
+    padding: 0.75rem 1rem;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+}
+
+.percentage-info small {
+    color: #4a5568;
+    font-size: 0.9rem;
+}
+
+.percentage-info strong {
+    color: #2d3748;
+}
+
+/* Votes List */
+.votes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.vote-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.vote-info {
+    flex: 1;
+}
+
+.voter-name {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+}
+
+.vote-time {
+    font-size: 0.9rem;
+    color: #718096;
+}
+
+.delete-vote-btn {
+    padding: 0.5rem 1rem;
+    background: rgba(229, 62, 62, 0.1);
+    color: #e53e3e;
+    border: 1px solid rgba(229, 62, 62, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.delete-vote-btn:hover {
+    background: rgba(229, 62, 62, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .admin-header-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .admin-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .admin-container {
+        padding: 1rem;
+        gap: 1.5rem;
+    }
+    
+    .admin-section {
+        padding: 1.5rem;
+    }
+    
+    .vote-controls {
+        grid-template-columns: 1fr;
+    }
+    
+    .vote-item {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .file-input-label {
+        padding: 1.5rem;
+        flex-direction: column;
+    }
+}
+
+/* ========================================
+   RESULTS PAGE STYLES
+   ======================================== */
+
+/* Back button for results page */
+
+
+
+/* Result card specific styling */
+.result-card {
+    position: relative;
+    overflow: visible;
+}
+
+/* Rank indicator */
+.result-rank {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 0.5rem 0.8rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.rank-number {
+    font-size: 1rem;
+}
+
+.rank-medal {
+    font-size: 1.2rem;
+}
+
+/* Special styling for top 3 positions */
+.result-card:nth-child(1) .result-rank {
+    background: linear-gradient(135deg, #ffd700, #ffb347); /* Gold */
+    color: #8b4513;
+}
+
+.result-card:nth-child(2) .result-rank {
+    background: linear-gradient(135deg, #c0c0c0, #a8a8a8); /* Silver */
+    color: #404040;
+}
+
+.result-card:nth-child(3) .result-rank {
+    background: linear-gradient(135deg, #cd7f32, #b8860b); /* Bronze */
+    color: white;
+}
+
+/* Vote count display */
+.vote-count {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.6rem 1rem;
+    border-radius: 15px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    min-width: 70px;
+}
+
+.vote-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.2rem;
+}
+
+.vote-label {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    text-transform: lowercase;
+}
+
+/* Result image name styling */
+.result-image-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #2d3748;
+    text-align: center;
+    padding: 0.3rem 0.5rem;
+    background: linear-gradient(135deg, #f7fafc, #edf2f7);
+    border-radius: 8px;
+    margin: 0.3rem 0;
+    word-break: break-word;
+    transition: all 0.3s ease;
+}
+
+.result-card:hover .result-image-name {
+    background: linear-gradient(135deg, #edf2f7, #e2e8f0);
+    transform: translateY(-1px);
+}
+
+/* Winner effects for first place */
+.result-card:nth-child(1) {
+    transform: scale(1.02);
+    border: 2px solid #ffd700;
+    box-shadow: 0 25px 50px rgba(255, 215, 0, 0.3);
+}
+
+.result-card:nth-child(1):hover {
+    transform: scale(1.02) translateY(-8px);
+    box-shadow: 0 35px 70px rgba(255, 215, 0, 0.4);
+}
+
+.result-card:nth-child(1) .vote-count {
+    background: linear-gradient(135deg, #ffd700, #ffb347);
+    color: #8b4513;
+}
+
+
+
+@keyframes resultFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Staggered animation for results */
+.result-card:nth-child(1) { animation-delay: 0.1s; }
+.result-card:nth-child(2) { animation-delay: 0.2s; }
+.result-card:nth-child(3) { animation-delay: 0.3s; }
+.result-card:nth-child(4) { animation-delay: 0.4s; }
+.result-card:nth-child(5) { animation-delay: 0.5s; }
+.result-card:nth-child(6) { animation-delay: 0.6s; }
+.result-card:nth-child(7) { animation-delay: 0.7s; }
+.result-card:nth-child(8) { animation-delay: 0.8s; }
+
+/* Mobile responsiveness for results */
+@media (max-width: 768px) {
+    .result-rank {
+        top: -8px;
+        left: -8px;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+    }
+    
+    .rank-medal {
+        font-size: 1rem;
+    }
+    
+    .vote-count {
+        padding: 0.5rem 0.8rem;
+        min-width: 60px;
+    }
+    
+    .vote-number {
+        font-size: 1.3rem;
+    }
+    
+    .vote-label {
+        font-size: 0.7rem;
+    }
+    
+    .result-card:nth-child(1) {
+        transform: scale(1.01);
+    }
+    
+    .result-card:nth-child(1):hover {
+        transform: scale(1.01) translateY(-6px);
+    }
 }

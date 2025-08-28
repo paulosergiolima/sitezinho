@@ -4,3 +4,7 @@ static/images
 logs.txt
 .env
 artes.zip
+mysql_data
+docker-compose.yml
+Dockerfile
+.dockerignore

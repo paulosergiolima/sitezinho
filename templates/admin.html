@@ -1,28 +1,179 @@
 <!DOCTYPE html>
-<html lang="en">
-    
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <script src="static/js/main.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Painel Administrativo - Artebonitinha</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="static/js/main.js"></script>
 </head>
-<body>
-    <h1>Coloque aqui o arquivo .zip</h1>
-    <form method="POST" action="/insert" enctype="multipart/form-data">
-      <p><input type="file" name="file"></p>
-      <p><input type="submit" value="Submit"></p>
-      </form>
-      Quantidade de votos {{count}} <br>
-      Votos: <br>
-      {% for user in users: %}
-                <button onclick="delete_vote('{{user.id}}')">Deletar voto</button>
-                {{user.username}} votou ás {{user.created}} <br>
-        {% endfor %}
-        <br>
-      <button onclick="delete_votes()">Deletar votos</button> <br>
-      <button onclick="change_vote_unique()">Votar apenas em uma arte</button> <br>
-      <button onclick="change_vote_multiple()">Votar em várias artes</button>
+<body class="admin-body">
+    <!-- Admin Header -->
+    <header class="admin-header">
+        <div class="admin-header-content">
+            <h1>🎨 Painel Administrativo</h1>
+            <a href="/" class="back-btn">← Voltar à Galeria</a>
+        </div>
+    </header>
 
+    <div class="admin-container">
+        <!-- Upload Section -->
+        <section class="admin-section upload-section">
+            <div class="section-header">
+                <h2>📤 Upload de Artes</h2>
+                <p class="section-description">Gerencie as imagens da galeria</p>
+            </div>
+            
+            <div class="upload-info">
+                <h3>Formatos Aceitos:</h3>
+                <div class="format-tags">
+                    <span class="format-tag">PNG</span>
+                    <span class="format-tag">JPG</span>
+                    <span class="format-tag">JPEG</span>
+                    <span class="format-tag">GIF</span>
+                    <span class="format-tag">BMP</span>
+                    <span class="format-tag">WEBP</span>
+                    <span class="format-tag">TIFF</span>
+                    <span class="format-tag zip">ZIP</span>
+                </div>
+            </div>
+            
+            <form method="POST" action="/insert" enctype="multipart/form-data" class="upload-form">
+                <div class="file-input-container">
+                    <label for="file" class="file-input-label">
+                        <span class="file-icon">📁</span>
+                        <span>Selecionar Arquivos</span>
+                        <input type="file" name="file" id="file" multiple accept=".png,.jpg,.jpeg,.gif,.bmp,.webp,.tiff,.zip">
+                    </label>
+                    <div class="file-info" id="fileInfo"></div>
+                </div>
+                <button type="submit" class="upload-btn">
+                    <span>📤</span>
+                    Enviar Arquivo(s)
+                </button>
+            </form>
+            
+            <!-- Upload Feedback -->
+            {% if session.upload_success %}
+            <div class="alert alert-success">
+                <span class="alert-icon">✅</span>
+                <div class="alert-content">
+                    <strong>Sucesso!</strong>
+                    {{ session.upload_success }}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if session.upload_errors %}
+            <div class="alert alert-error">
+                <span class="alert-icon">❌</span>
+                <div class="alert-content">
+                    <strong>Erros encontrados:</strong>
+                    <ul class="error-list">
+                    {% for error in session.upload_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- Vote Management Section -->
+        <section class="admin-section vote-section">
+            <div class="section-header">
+                <h2>🗳️ Gerenciar Votação</h2>
+                <p class="section-description">Controles de votação e estatísticas</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">{{count}}</div>
+                    <div class="stat-label">Total de Votos</div>
+                </div>
+            </div>
+            
+            <div class="vote-controls">
+                <button onclick="change_vote_unique()" class="control-button unique">
+                    <span>🔘</span>
+                    <div class="button-content">
+                        <div class="button-title">Escolha Única</div>
+                        <div class="button-description">Permitir apenas um voto por usuário</div>
+                    </div>
+                </button>
+                
+                <button onclick="change_vote_multiple()" class="control-button multiple">
+                    <span>☑️</span>
+                    <div class="button-content">
+                        <div class="button-title">Múltipla Escolha</div>
+                        <div class="button-description">Permitir votos em várias artes</div>
+                    </div>
+                </button>
+            </div>
+            
+            <!-- Percentage Configuration -->
+            <div class="percentage-config">
+                <div class="config-header">
+                    <h3>⚙️ Configuração de Múltipla Escolha</h3>
+                    <p>Defina quantos % das imagens cada usuário pode votar</p>
+                </div>
+                <div class="percentage-input-group">
+                    <label for="votePercentage">Porcentagem máxima:</label>
+                    <div class="input-with-button">
+                        <input type="number" id="votePercentage" min="1" max="100" value="{{ vote_percentage }}" />
+                        <span class="percentage-symbol">%</span>
+                        <button onclick="setVotePercentage()" class="btn btn-small">Aplicar</button>
+                    </div>
+                    <div class="percentage-info">
+                        <small>Atual: <strong>{{ vote_percentage }}%</strong> (máximo <span id="maxVotesDisplay">{{ (image_count * vote_percentage / 100)|round|int }}</span> votos de {{ image_count }} imagens)</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="vote-controls">
+                
+                <button onclick="delete_votes()" class="control-button danger">
+                    <span>🗑️</span>
+                    <div class="button-content">
+                        <div class="button-title">Limpar Votos</div>
+                        <div class="button-description">Apagar todos os votos existentes</div>
+                    </div>
+                </button>
+                
+                <button onclick="delete_images()" class="control-button danger">
+                    <span>🖼️</span>
+                    <div class="button-content">
+                        <div class="button-title">Remover Imagens</div>
+                        <div class="button-description">Apagar todas as imagens da galeria</div>
+                    </div>
+                </button>
+            </div>
+        </section>
+
+        <!-- Votes List Section -->
+        {% if users %}
+        <section class="admin-section votes-section">
+            <div class="section-header">
+                <h2>📊 Lista de Votos</h2>
+                <p class="section-description">Histórico detalhado de votações</p>
+            </div>
+            
+            <div class="votes-list">
+                {% for user in users %}
+                <div class="vote-item">
+                    <div class="vote-info">
+                        <div class="voter-name">👤 {{user.username}}</div>
+                        <div class="vote-time">🕒 {{user.created}}</div>
+                    </div>
+                    <button onclick="delete_vote('{{user.id}}')" class="delete-vote-btn">
+                        <span>🗑️</span>
+                        Deletar
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </div>
 </body>
 </html>

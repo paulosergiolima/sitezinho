@@ -1,25 +1,94 @@
 <!DOCTYPE html>
-<link rel="stylesheet" href="static/css/style.css">
-<script src="static/js/main.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-<html lang="en">
-
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Urna artebonitinha</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados - Artebonitinha</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="static/js/main.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 </head>
-
 <body>
-  <div class="artes">
-    <div class="option">
-      {% for key, value in images.items(): %}
-      <img class="img-option" src="static/images/{{key}}" alt="">
-      Votos: {{value}}
-      {% endfor %}
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="header-title">
+                <h1>🏆 Resultados da Votação</h1>
+            </div>
+            <div class="header-buttons">
+                <a href="/" class="back-btn-results">← Voltar à Galeria</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="artes">
+        {% for key, value in images.items() %}
+            <div class="option result-card">
+                <!-- Result rank indicator -->
+                <div class="result-rank">
+                    <span class="rank-number">#{{ loop.index }}</span>
+                    {% if loop.index == 1 %}
+                        <span class="rank-medal">🥇</span>
+                    {% elif loop.index == 2 %}
+                        <span class="rank-medal">🥈</span>
+                    {% elif loop.index == 3 %}
+                        <span class="rank-medal">🥉</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Image container -->
+                <div class="image-container">
+                    <img class="img-option" src="static/images/{{key}}" alt="{{key}}">
+                </div>
+                
+                <!-- Vote count display -->
+                <div class="vote-count">
+                    <div class="vote-number">{{value}}</div>
+                    <div class="vote-label">
+                        {% if value == 1 %}
+                            voto
+                        {% else %}
+                            votos
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Image name -->
+                <div class="result-image-name">{{key}}</div>
+                
+                <!-- Full screen button -->
+                <button class="view-fullscreen-btn" onclick="openModal('static/images/{{key}}', '{{key}} - {{value}} votos')">
+                    <span class="btn-icon"></span>
+                    Ver em Tela Cheia
+                </button>
+            </div>
+        {% endfor %}
     </div>
-  </div>
 
+    <!-- Modal for full view image with canvas -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            
+            <!-- Canvas container -->
+            <div class="canvas-container">
+                <canvas id="imageCanvas" class="image-canvas"></canvas>
+            </div>
+            
+            <!-- Canvas controls -->
+            <div class="canvas-controls">
+                <button id="zoomOut" class="control-btn" title="Zoom Out">🔍-</button>
+                <button id="zoomIn" class="control-btn" title="Zoom In">🔍+</button>
+                <button id="resetZoom" class="control-btn" title="Reset View">⚡</button>
+                <button id="fitToScreen" class="control-btn" title="Fit to Screen">📱</button>
+                <span class="zoom-level">100%</span>
+            </div>
+            
+            <div class="modal-info">
+                <h3 id="modalTitle">Arte Bonitinha</h3>
+                <p id="modalDescription">Use os controles para navegar • Arraste para mover • Scroll para zoom</p>
+            </div>
+        </div>
+    </div>
 </body>
-
 </html>
