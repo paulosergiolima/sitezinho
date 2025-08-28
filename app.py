@@ -304,7 +304,7 @@ def set_vote_percentage():
         f.write(f"Error setting vote percentage: {str(e)}\n")
         return json.dumps({
             "success": False, 
-            "error": str(e)
+            "error": "TODO better error handling",
         }), 500, {"ContentType": "application/json"}
 
 
@@ -363,7 +363,7 @@ def delete_images():
         
         return json.dumps({
             "success": False, 
-            "error": error_msg
+            "error": "TODO better error msg"
         }), 500, {"ContentType": "application/json"}
 
 
@@ -397,7 +397,8 @@ def check_user():
         })
         
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print("error")
+        #return jsonify({"error": str(e)}), 500
 
 
 @app.route("/votes")
@@ -411,8 +412,3 @@ def votes():
             votes[vote].add(user.username)
     print(votes)
     return render_template("votes.html", votes=votes)
-
-
-if __name__ == "__main__":
-    # Run Flask app in development mode with host accessible from Docker
-    app.run(host='0.0.0.0', port=5000, debug=True)
