@@ -1609,12 +1609,13 @@ header {
 /* Mobile responsiveness for results header */
 @media (max-width: 768px) {
     .results-body {
-        padding-top: 120px; /* More space for mobile header */
+        padding-top: 120px; /* Consistent space for mobile header */
     }
     
     .results-header-content {
-        flex-direction: row;
+        flex-direction: row; /* Horizontal layout on mobile */
         gap: 1rem;
+        padding: 1rem; /* Consistent padding with admin */
     }
     
     .results-header h1 {
@@ -1629,16 +1630,17 @@ header {
 
 @media (max-width: 480px) {
     .results-body {
-        padding-top: 140px; /* Even more space for very small screens */
+        padding-top: 100px; /* Consistent with admin mobile padding */
     }
     
     .results-header-content {
-        padding: 0.75rem 1rem;
+        padding: 1rem 1rem; /* Consistent with admin padding */
+        flex-direction: row; /* Horizontal layout even on small screens */
         gap: 0.75rem;
     }
     
     .results-header h1 {
-        font-size: 1.3rem;
+        font-size: 1rem; /* Consistent with admin font size */
     }
     
     .results-header a.back-btn-results {
