@@ -1,12 +1,18 @@
 <!DOCTYPE html>
-<link rel="stylesheet" href="static/css/style.css">
-<script src="static/js/main.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Urna artebonitinha</title>
+    <meta name="description" content="Site de arte bonitinha">
+    <title>site artebonitinha</title>
+    
+    <!-- Favicon - icon that appears in the browser tab -->
+    <link rel="icon" type="image/png" href="static/assets/arte.png">
+    
+    <!-- CSS and JavaScript files -->
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="static/js/main.js"></script>
 </head>
 
 <header>
@@ -77,7 +83,8 @@
         </div>
     </div>
 
-    <!-- Vote Configuration -->
+    
+    <!-- Vote Configuration -- Não apagar funciona -->
     <script type="text/javascript">
         window.VOTE_CONFIG = {{ vote_config_json|safe }};
     </script>
