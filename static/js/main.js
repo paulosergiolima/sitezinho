@@ -344,6 +344,11 @@ function openModal(imageSrc, imageName) {
   canvas = document.getElementById('imageCanvas');
   ctx = canvas.getContext('2d');
   
+  // Configure canvas for high-quality rendering
+  // Disable default image smoothing for initial setup
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  
   // Set modal title
   modalTitle.textContent = imageName;
   
@@ -362,39 +367,80 @@ function openModal(imageSrc, imageName) {
 
 function loadImageToCanvas(imageSrc) {
   img = new Image();
+  
+  // Set crossOrigin to allow loading images from same domain
+  img.crossOrigin = 'anonymous';
+  
   img.onload = function() {
     currentImage = img;
+    
+    // Reset canvas configuration
     resetCanvas();
+    
+    // Initial draw with high quality
     drawImage();
   };
+  
+  // Handle loading errors
+  img.onerror = function() {
+    console.error('Failed to load image:', imageSrc);
+    alert('Erro ao carregar a imagem. Tente novamente.');
+  };
+  
   img.src = imageSrc;
 }
 
 function resetCanvas() {
   // Set canvas size to container size
   const container = canvas.parentElement;
-  canvas.width = container.offsetWidth;
-  canvas.height = container.offsetHeight;
+  const containerWidth = container.offsetWidth;
+  const containerHeight = container.offsetHeight;
   
-  // Calculate initial scale to fit image
-  const scaleX = canvas.width / img.width;
-  const scaleY = canvas.height / img.height;
+  // Get device pixel ratio for high-DPI displays (Retina, etc.)
+  const pixelRatio = window.devicePixelRatio || 1;
+  
+  // Set actual canvas size accounting for device pixel ratio
+  canvas.width = containerWidth * pixelRatio;
+  canvas.height = containerHeight * pixelRatio;
+  
+  // Scale canvas back down using CSS for proper display size
+  canvas.style.width = containerWidth + 'px';
+  canvas.style.height = containerHeight + 'px';
+  
+  // Scale the drawing context to account for device pixel ratio
+  ctx.scale(pixelRatio, pixelRatio);
+  
+  // Calculate initial scale to fit image (using CSS dimensions)
+  const scaleX = containerWidth / img.width;
+  const scaleY = containerHeight / img.height;
   scale = Math.min(scaleX, scaleY);
   
-  // Center the image
-  offsetX = (canvas.width - img.width * scale) / 2;
-  offsetY = (canvas.height - img.height * scale) / 2;
+  // Center the image (using CSS dimensions)
+  offsetX = (containerWidth - img.width * scale) / 2;
+  offsetY = (containerHeight - img.height * scale) / 2;
   
   updateZoomLevel();
 }
 
 function drawImage() {
-  // Clear canvas
+  // Clear canvas with proper dimensions
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-  // Draw image with current transform
+  // Configure context for high-quality rendering
   ctx.save();
+  
+  // Disable image smoothing for crisp pixel-perfect rendering when zoomed in
+  if (scale >= 1) {
+    ctx.imageSmoothingEnabled = false;
+  } else {
+    // Enable high-quality smoothing for zoomed out images
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+  }
+  
+  // Draw image with current transform
   ctx.drawImage(img, offsetX, offsetY, img.width * scale, img.height * scale);
+  
   ctx.restore();
 }
 

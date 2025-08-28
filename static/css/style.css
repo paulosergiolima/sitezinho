@@ -656,6 +656,10 @@ header {
 .image-canvas {
     display: block;
     background: transparent;
+    /* Optimize for high-quality image rendering */
+    image-rendering: auto; /* Let browser choose best quality */
+    /* Ensure canvas renders at correct size */
+    object-fit: contain;
 }
 
 /* Canvas controls styling */
@@ -791,6 +795,10 @@ header {
         padding: 0.4rem 0.8rem;
         font-size: 0.9rem;
         min-width: 50px;
+    }
+
+    .modal-info {
+        margin-top: 0.5rem;
     }
     
     .modal-info h3 {
