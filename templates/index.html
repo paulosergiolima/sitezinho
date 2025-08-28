@@ -1,30 +1,129 @@
 <!DOCTYPE html>
-<link rel="stylesheet" href="static/css/style.css">
-<script src="static/js/main.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Urna artebonitinha</title>
+    <meta name="description" content="Site de arte bonitinha">
+    <title>site artebonitinha</title>
+    
+    <!-- Favicon - icon that appears in the browser tab -->
+    <link rel="icon" type="image/png" href="static/assets/arte.png">
+    
+    <!-- CSS and JavaScript files -->
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="static/js/main.js"></script>
 </head>
+
+<header>
+    <div class="header-title">
+        <div class="header-title-container">
+            <img src="static/assets/arte.png" alt="Artebonitinha">
+            <h1>Artebonitinha</h1>
+        </div>
+    </div>
+    <div class="header-buttons">
+        <button onclick="vote()" class="vote-btn">votar</button>
+        <span class="vote-mode-indicator">
+            {% if unique_vote %}
+                🔘 Escolha única
+            {% else %}
+                ☑️ Múltipla escolha
+            {% endif %}
+        </span>
+    </div>      
+</header>
+
 <body>
     <div class="artes">
-        	{% for image in images: %}
+        {% for image in images: %}
             <div class="option">
-                <input class="chk" type="checkbox" name="{{image}}" id=""><img class="img-option" src="static/images/{{image}}" alt="">
+                <!-- Image container with clickable label -->
+                <label for="checkbox_{{loop.index}}" class="image-label">
+                    <div class="image-container">
+                        <img class="img-option" src="static/images/{{image}}" alt="{{image}}">
+                        <div class="checkbox-container">
+                            <input class="chk" type="checkbox" name="{{image}}" id="checkbox_{{loop.index}}">
+                            <span class="checkbox-custom"></span>
+                        </div>
+                    </div>
+                    <button class="view-fullscreen-btn" onclick="openModal('static/images/{{image}}', 'Arte-Bonitinha #{{loop.index}}')">
+                        <span class="btn-icon"></span>
+                        ver em tela cheia
+                    </button>
+                </label>
             </div>
-            {% endfor %}
+        {% endfor %}
         
     </div>
-    <button onclick="vote()">Votar</button>
+
+    <!-- Modal for full view image with canvas -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            
+            <!-- Canvas container -->
+            <div class="canvas-container">
+                <canvas id="imageCanvas" class="image-canvas"></canvas>
+            </div>
+            
+            <!-- Canvas controls -->
+            <div class="canvas-controls">
+                <button id="zoomOut" class="control-btn" title="Zoom Out">🔍-</button>
+                <button id="zoomIn" class="control-btn" title="Zoom In">🔍+</button>
+                <button id="resetZoom" class="control-btn" title="Reset View">⚡</button>
+                <button id="fitToScreen" class="control-btn" title="Fit to Screen">📱</button>
+                <span class="zoom-level">100%</span>
+            </div>
+            
+            <div class="modal-info">
+                <h3 id="modalTitle">Arte Bonitinha</h3>
+                <p id="modalDescription">Use os controles para navegar • Arraste para mover • Scroll para zoom</p>
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- Vote Configuration -- Não apagar funciona -->
+    <script type="text/javascript">
+        window.VOTE_CONFIG = {{ vote_config_json|safe }};
+    </script>
+        
+    
+
+    {% if unique_vote == True %}
+    <script>
+        $('input.chk').prop('checked', false);
+        $('input.chk').on('change', function() {
+            $('input.chk').not(this).prop('checked', false);
+        });
+    </script>
+    {% else %}
+    <script>
+        $(document).ready(function() {
+            $('input.chk').on('change', function() {
+                const checkedBoxes = $('input.chk:checked').length;
+                
+                if (checkedBoxes > window.VOTE_CONFIG.max_votes) {
+                    $(this).prop('checked', false);
+                    alert(`Você pode votar em no máximo ${window.VOTE_CONFIG.max_votes} artes (${window.VOTE_CONFIG.percentage}% do total de ${window.VOTE_CONFIG.total_images} imagens).`);
+                    return;
+                }
+                
+                updateVoteCounter();
+            });
+            
+            function updateVoteCounter() {
+                const checkedBoxes = $('input.chk:checked').length;
+                const voteIndicator = document.querySelector('.vote-mode-indicator');
+                if (voteIndicator) {
+                    voteIndicator.textContent = `☑️ Múltipla escolha (${checkedBoxes}/${window.VOTE_CONFIG.max_votes} votos)`;
+                }
+            }
+            
+            updateVoteCounter();
+        });
+    </script>
+    {% endif %}
 </body>
-{% if unique_vote == True %}
-<script>
-$('input.chk').prop('checked', false)
-$('input.chk').on('change', function() {
-    $('input.chk').not(this).prop('checked', false);  
-});
-</script>
-  {% endif %}
 </html>
