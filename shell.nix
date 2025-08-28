@@ -10,7 +10,7 @@ in pkgs.mkShell {
       python-pkgs.python-dotenv
       python-pkgs.flask-sqlalchemy
       python-pkgs.flask-mysqldb
-      python-pkgs.jedi-language-server
+      #python-pkgs.jedi-language-server
       python-pkgs.python-lsp-server
       python-pkgs.flask-session
     ]))
