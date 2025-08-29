@@ -1697,6 +1697,41 @@ header {
     color: #8b4513;
 }
 
+/* 2 effects for first place */
+.result-card:nth-child(2) {
+    transform: scale(1.02);
+    border: 2px solid #c0c0c0;
+    box-shadow: 0 25px 50px rgba(255, 215, 0, 0.3);
+}
+
+.result-card:nth-child(2):hover {
+    transform: scale(1.02) translateY(-8px);
+    box-shadow: 0 35px 70px rgba(192, 192, 192, 0.4);
+}
+
+.result-card:nth-child(2) .vote-count {
+    background: linear-gradient(135deg, #c0c0c0, #a8a8a8);
+    color: #404040;
+}
+
+/* 3 effects for first place */
+.result-card:nth-child(3) {
+    transform: scale(1.02);
+    border: 2px solid #cd7f32;
+    box-shadow: 0 25px 50px rgba(255, 215, 0, 0.3);
+}
+
+.result-card:nth-child(3):hover {
+    transform: scale(1.02) translateY(-8px);
+    box-shadow: 0 35px 70px rgba(205, 127, 50, 0.4);
+}
+    
+.result-card:nth-child(3) .vote-count {
+    background: linear-gradient(135deg, #513010, #b8860b);
+    color: white;
+}   
+
+
 
 
 @keyframes resultFadeIn {
