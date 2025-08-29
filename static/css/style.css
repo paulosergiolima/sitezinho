@@ -862,11 +862,10 @@ header {
 
 /* Admin Container */
 .admin-container {
-    max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 1rem;
     display: flex;
-    gap: 2rem;
+    gap: 1rem;
 }
 
 /* Admin Sections */
@@ -1244,7 +1243,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 1.5rem;
+    padding: 1rem 2rem;
     background: rgba(255, 255, 255, 0.8);
     border-radius: 10px;
     border: 1px solid rgba(102, 126, 234, 0.1);
@@ -1252,6 +1251,7 @@ header {
 
 .vote-info {
     flex: 1;
+    padding-right: 1rem;
 }
 
 .voter-name {
@@ -1290,34 +1290,77 @@ header {
     .admin-header {
         align-items: center;
         padding: 0% !important;
-    }
-
-    .admin-header a.back-btn {
-        margin-left: auto; /* Maintains right alignment on mobile */
-        flex-shrink: 0; /* Prevents button from shrinking */
+        position: fixed; /* Ensure header stays fixed on mobile */
+        width: 100%; /* Full width on mobile */
     }
 
     .admin-header-content {
-        flex-direction: row;
-        gap: 1rem;
+        flex-direction: row; /* Stack elements vertically on mobile */
+        gap: 0.75rem;
+        padding: 1rem; /* Reduced padding for mobile */
+        text-align: center;
+        max-width: 100%; /* Ensure it doesn't overflow */
+    }
+
+    .admin-header a.back-btn {
+        margin-left: 0; /* Center button on mobile */
+        align-self: center; /* Center the button */
+        flex-shrink: 0; /* Prevents button from shrinking */
+        width: 100px; /* Let button size naturally */
     }
     
     .admin-header h1 {
-        font-size: 1rem;
+        font-size: 1.2rem; /* Slightly larger for better readability */
+        text-align: center;
+        order: -1; /* Ensure title comes first */
+    }
+
+    /* Adjust body padding for mobile header */
+    .admin-body {
+        padding-top: 120px; /* More space for taller mobile header */
     }
     
     .admin-container {
-        padding: 1rem;
-        gap: 1.5rem;
+        padding: 0.5rem; /* Reduced padding to prevent overflow */
+        gap: 1rem; /* Reduced gap for tighter layout */
         flex-direction: column;
+        max-width: 100%; /* Ensure container doesn't overflow */
+        margin: 0 auto;
     }
     
     .admin-section {
-        padding: 1.5rem;
+        padding: 1rem; /* Reduced padding for mobile */
+        margin: 0; /* Remove any margin that might cause overflow */
+        width: 100%; /* Ensure sections don't exceed container */
+        box-sizing: border-box; /* Include padding in width calculation */
     }
     
     .vote-controls {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* Single column on mobile */
+        gap: 0.75rem; /* Reduced gap for mobile */
+    }
+    
+    .control-button {
+        padding: 1rem; /* Reduced padding for mobile */
+        text-align: left;
+        width: 100%; /* Ensure buttons don't overflow */
+        box-sizing: border-box;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr; /* Single column for stats on mobile */
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-card {
+        padding: 1rem; /* Reduced padding for mobile */
+        text-align: center;
+    }
+    
+    .percentage-config {
+        padding: 1rem; /* Reduced padding for mobile */
+        margin: 0.75rem 0;
     }
     
     .vote-item {
@@ -1330,6 +1373,44 @@ header {
         padding: 2.5rem 1.5rem; /* Increased vertical padding for mobile but kept reasonable */
         min-height: 150px; /* Smaller minimum height for mobile screens */
         flex-direction: column;
+    }
+}
+
+/* Additional mobile fixes for very small screens */
+@media (max-width: 480px) {
+    .admin-header-content {
+        padding: 1rem 1rem; /* Even tighter padding for small screens */
+        flex-direction: row;
+    }
+    
+    .admin-header h1 {
+        font-size: 1rem; /* Smaller title for very small screens */
+    }
+    
+    .admin-container {
+        padding: 0.25rem; /* Minimal padding for very small screens */
+    }
+    
+    .admin-section {
+        padding: 0.75rem; /* Minimal section padding */
+        border-radius: 15px; /* Slightly smaller border radius */
+    }
+    
+    .control-button {
+        padding: 0.75rem; /* Compact button padding */
+        gap: 0.75rem;
+    }
+    
+    .button-title {
+        font-size: 0.9rem;
+    }
+    
+    .button-description {
+        font-size: 0.8rem;
+    }
+    
+    .admin-body {
+        padding-top: 100px; /* Reduced for very small screens */
     }
 }
 
@@ -1381,9 +1462,17 @@ header {
     letter-spacing: -0.02em;
 }
 
+/* Container for results page buttons */
+.back-btn-results-container {
+    display: flex;
+    gap: 1rem; /* Adds spacing between buttons */
+    align-items: center;
+    margin-left: auto; /* Pushes container to the right */
+}
+
 .back-btn-results {
-    margin-left: auto; /* Pushes button to the right end of the container */
     /* Inherits base button styles */
+    margin-left: 0; /* Reset margin since container handles positioning */
 }
 
 /* Back button for results page */
@@ -1466,6 +1555,112 @@ header {
     text-transform: lowercase;
 }
 
+/* Voters icon in vote count */
+.voters-icon {
+    font-size: 0.7rem;
+    margin-top: 0.2rem;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.vote-count:hover .voters-icon {
+    opacity: 1;
+}
+
+/* Voters list styling */
+.voters-list {
+    position: absolute;
+    top: 80px;
+    right: 15px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    min-width: 200px;
+    max-width: 280px;
+    overflow: hidden;
+    animation: slideInVoters 0.3s ease;
+}
+
+.voters-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 0.8rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.close-voters {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+}
+
+.close-voters:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.voters-content {
+    padding: 0.5rem 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.voter-item {
+    display: flex;
+    align-items: center;
+    padding: 0.6rem 1rem;
+    transition: background 0.2s ease;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.voter-item:last-child {
+    border-bottom: none;
+}
+
+.voter-item:hover {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.voter-icon {
+    margin-right: 0.5rem;
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.voter-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #2d3748;
+    word-break: break-word;
+}
+
+/* Animation for voters list */
+@keyframes slideInVoters {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 /* Result image name styling */
 .result-image-name {
     font-size: 0.85rem;
@@ -1502,6 +1697,41 @@ header {
     color: #8b4513;
 }
 
+/* 2 effects for first place */
+.result-card:nth-child(2) {
+    transform: scale(1.02);
+    border: 2px solid #c0c0c0;
+    box-shadow: 0 25px 50px rgba(255, 215, 0, 0.3);
+}
+
+.result-card:nth-child(2):hover {
+    transform: scale(1.02) translateY(-8px);
+    box-shadow: 0 35px 70px rgba(192, 192, 192, 0.4);
+}
+
+.result-card:nth-child(2) .vote-count {
+    background: linear-gradient(135deg, #c0c0c0, #a8a8a8);
+    color: #404040;
+}
+
+/* 3 effects for first place */
+.result-card:nth-child(3) {
+    transform: scale(1.02);
+    border: 2px solid #cd7f32;
+    box-shadow: 0 25px 50px rgba(255, 215, 0, 0.3);
+}
+
+.result-card:nth-child(3):hover {
+    transform: scale(1.02) translateY(-8px);
+    box-shadow: 0 35px 70px rgba(205, 127, 50, 0.4);
+}
+    
+.result-card:nth-child(3) .vote-count {
+    background: linear-gradient(135deg, #513010, #b8860b);
+    color: white;
+}   
+
+
 
 
 @keyframes resultFadeIn {
@@ -1528,41 +1758,55 @@ header {
 /* Mobile responsiveness for results header */
 @media (max-width: 768px) {
     .results-body {
-        padding-top: 120px; /* More space for mobile header */
+        padding-top: 120px; /* Consistent space for mobile header */
     }
     
     .results-header-content {
-        flex-direction: row;
+        flex-direction: row; /* Horizontal layout on mobile */
         gap: 1rem;
+        padding: 1rem; /* Consistent padding with admin */
     }
     
     .results-header h1 {
         font-size: 1rem;
     }
     
-    .results-header a.back-btn-results {
+    .back-btn-results-container {
+        gap: 0.75rem; /* Slightly smaller gap on mobile */
         margin-left: auto; /* Maintains right alignment on mobile */
+        flex-shrink: 0; /* Prevents container from shrinking */
+    }
+    
+    .results-header a.back-btn-results {
+        margin-left: 0; /* Reset since container handles positioning */
         flex-shrink: 0; /* Prevents button from shrinking */
     }
 }
 
 @media (max-width: 480px) {
     .results-body {
-        padding-top: 140px; /* Even more space for very small screens */
+        padding-top: 100px; /* Consistent with admin mobile padding */
     }
     
     .results-header-content {
-        padding: 0.75rem 1rem;
+        padding: 1rem 1rem; /* Consistent with admin padding */
+        flex-direction: row; /* Horizontal layout even on small screens */
         gap: 0.75rem;
     }
     
     .results-header h1 {
-        font-size: 1.3rem;
+        font-size: 1rem; /* Consistent with admin font size */
+    }
+    
+    .back-btn-results-container {
+        gap: 0.5rem; /* Even smaller gap on very small screens */
     }
     
     .results-header a.back-btn-results {
-        margin-left: auto; /* Maintains right alignment on mobile */
+        margin-left: 0; /* Reset since container handles positioning */
         flex-shrink: 0; /* Prevents button from shrinking */
+        font-size: 0.85rem; /* Slightly smaller text on very small screens */
+        padding: 0.5rem 1rem; /* Smaller padding for very small screens */
     }
 }
 
@@ -1593,11 +1837,304 @@ header {
         font-size: 0.7rem;
     }
     
+    /* Mobile voters list adjustments */
+    .voters-list {
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+        width: auto;
+        top: 70px;
+    }
+    
+    .voters-header {
+        padding: 0.7rem;
+        font-size: 0.8rem;
+    }
+    
+    .close-voters {
+        width: 20px;
+        height: 20px;
+        font-size: 0.9rem;
+    }
+    
+    .voter-item {
+        padding: 0.5rem 0.7rem;
+    }
+    
+    .voter-name {
+        font-size: 0.8rem;
+    }
+    
     .result-card:nth-child(1) {
         transform: scale(1.01);
     }
     
     .result-card:nth-child(1):hover {
         transform: scale(1.01) translateY(-6px);
+    }
+}
+
+/* ========================================
+   VOTES PAGE STYLES
+   ======================================== */
+
+/* Votes page body styling */
+.votes-body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding-top: 100px;
+}
+
+/* Votes grid container - Wider cards */
+.votes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Votes card styling - Compact version */
+.votes-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    animation: slideInUp 0.5s ease-out;
+}
+
+.votes-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* Vote count badge - Compact */
+.vote-count-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    text-align: center;
+    min-width: 50px;
+    z-index: 2;
+}
+
+.vote-count-badge .vote-number {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.05rem;
+    display: block;
+}
+
+.vote-count-badge .vote-label {
+    font-size: 0.65rem;
+    opacity: 0.9;
+    text-transform: lowercase;
+    display: block;
+}
+
+/* Image name styling - Compact */
+.votes-card .image-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #2d3748;
+    text-align: center;
+    padding: 0.4rem;
+    background: linear-gradient(135deg, #f7fafc, #edf2f7);
+    border-radius: 8px;
+    margin: 0.7rem 0 0.5rem 0;
+    word-break: break-word;
+}
+
+/* Voters section styling - Compact */
+.voters-section {
+    margin: 0.8rem 0 0 0;
+}
+
+.voters-header {
+    margin-bottom: 0.6rem;
+}
+
+.voters-header h3 {
+    font-size: 0.9rem;
+    color: #2d3748;
+    margin: 0;
+    font-weight: 600;
+}
+
+/* Voters list container - Compact */
+.voters-list-container {
+    display: block;
+    overflow-y: auto;
+    padding: 0.4rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+/* Voter tag styling - Compact white style */
+.voter-tag {
+    display: flex;
+    align-items: center;
+    background: white;
+    color: #2d3748;
+    padding: 0.35rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 400;
+    transition: all 0.2s ease;
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 0.2rem;
+}
+
+.voter-tag:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+}
+
+.voter-tag .voter-icon {
+    margin-right: 0.5rem;
+    font-size: 0.9rem;
+    color: #718096;
+}
+
+.voter-tag .voter-name {
+    color: #2d3748;
+    font-weight: 400;
+}
+
+/* No votes message styling */
+.no-votes-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.no-votes-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.no-votes-message h2 {
+    font-size: 1.5rem;
+    color: #2d3748;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.no-votes-message p {
+    font-size: 1rem;
+    color: #718096;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.back-btn-primary {
+    padding: 0.8rem 2rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.back-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+}
+
+/* Animation for cards */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Staggered animation for votes cards */
+.votes-card:nth-child(1) { animation-delay: 0.1s; }
+.votes-card:nth-child(2) { animation-delay: 0.2s; }
+.votes-card:nth-child(3) { animation-delay: 0.3s; }
+.votes-card:nth-child(4) { animation-delay: 0.4s; }
+.votes-card:nth-child(5) { animation-delay: 0.5s; }
+.votes-card:nth-child(6) { animation-delay: 0.6s; }
+.votes-card:nth-child(7) { animation-delay: 0.7s; }
+.votes-card:nth-child(8) { animation-delay: 0.8s; }
+
+/* Mobile responsiveness for votes page */
+@media (max-width: 768px) {
+    .votes-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .votes-card {
+        padding: 0.8rem;
+    }
+    
+    .vote-count-badge {
+        top: 0.5rem;
+        right: 0.5rem;
+        padding: 0.25rem 0.5rem;
+        min-width: 45px;
+    }
+    
+    .vote-count-badge .vote-number {
+        font-size: 0.9rem;
+    }
+    
+    .vote-count-badge .vote-label {
+        font-size: 0.6rem;
+    }
+    
+    .voters-list-container {
+        padding: 0.3rem;
+    }
+    
+    .voter-tag {
+        padding: 0.3rem 0.5rem;
+        font-size: 0.75rem;
+        margin-bottom: 0.15rem;
+    }
+    
+    .voters-header h3 {
+        font-size: 0.9rem;
+    }
+    
+    .no-votes-message {
+        padding: 2rem 1rem;
+    }
+    
+    .no-votes-icon {
+        font-size: 3rem;
+    }
+    
+    .no-votes-message h2 {
+        font-size: 1.2rem;
     }
 }

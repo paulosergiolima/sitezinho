@@ -1,31 +1,82 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="description" content="Site de arte bonitinha">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>site artebonitinha</title>
-  
-  <!-- Favicon - icon that appears in the browser tab -->
-  <link rel="icon" type="image/png" href="static/assets/arte.png">
-  
-  <!-- CSS and JavaScript files -->
-  <link rel="stylesheet" href="static/css/style.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-  <script src="static/js/main.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Detalhes dos votos por imagem - Artebonitinha">
+    <title>Detalhes dos Votos - Artebonitinha</title>
+    
+    <!-- Favicon - icon that appears in the browser tab -->
+    <link rel="icon" type="image/png" href="static/assets/arte.png">
+    
+    <!-- CSS and JavaScript files -->
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="static/js/main.js"></script>
 </head>
 
-<body>
-  <div class="artes">
-    <div class="option">
-      {% for key, value in votes.items(): %}
-      <img class="img-option" src="static/images/{{key}}" alt="">
-      Quem votou nessa: {{value}}
-      <br>
-      {% endfor %}
+<header>
+    <div class="header-title">
+        <div class="header-title-container">
+            <img src="static/assets/arte.png" alt="Artebonitinha">
+            <h1>Detalhes dos Votos</h1>
+        </div>
     </div>
-  </div>
+    <div class="header-buttons">
+        <a href="/" class="back-btn">← Galeria</a>
+        <a href="/count" class="results-btn">📊 Resultados</a>
+    </div>      
+</header>
 
+<body class="votes-body">
+    <div class="artes votes-grid">
+        {% for image, voters in votes.items() %}
+            <div class="option votes-card">
+                <!-- Image container -->
+                <div class="image-container">
+                    <img class="img-option" src="static/images/{{image}}" alt="{{image}}">
+                    
+                    <!-- Vote count badge -->
+                    <div class="vote-count-badge">
+                        <span class="vote-number">{{voters|length}}</span>
+                        <span class="vote-label">
+                            {% if voters|length == 1 %}
+                                voto
+                            {% else %}
+                                votos
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Image name -->
+                <div class="image-name">{{image}}</div>
+                
+                <!-- Voters list -->
+                <div class="voters-section">
+                    <div class="voters-header">
+                        <h3>👥 Quem votou:</h3>
+                    </div>
+                    <div class="voters-list-container">
+                        {% for voter in voters %}
+                            <div class="voter-tag">
+                                <span class="voter-icon">👤</span>
+                                <span class="voter-name">{{voter}}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        
+        {% if not votes %}
+            <div class="no-votes-message">
+                <div class="no-votes-icon">📭</div>
+                <h2>Nenhum voto registrado ainda</h2>
+                <p>Quando as pessoas começarem a votar, os detalhes aparecerão aqui.</p>
+                <a href="/" class="back-btn-primary">← Voltar à Galeria</a>
+            </div>
+        {% endif %}
+    </div>
 </body>
-
 </html>
