@@ -1462,9 +1462,17 @@ header {
     letter-spacing: -0.02em;
 }
 
+/* Container for results page buttons */
+.back-btn-results-container {
+    display: flex;
+    gap: 1rem; /* Adds spacing between buttons */
+    align-items: center;
+    margin-left: auto; /* Pushes container to the right */
+}
+
 .back-btn-results {
-    margin-left: auto; /* Pushes button to the right end of the container */
     /* Inherits base button styles */
+    margin-left: 0; /* Reset margin since container handles positioning */
 }
 
 /* Back button for results page */
@@ -1728,8 +1736,14 @@ header {
         font-size: 1rem;
     }
     
-    .results-header a.back-btn-results {
+    .back-btn-results-container {
+        gap: 0.75rem; /* Slightly smaller gap on mobile */
         margin-left: auto; /* Maintains right alignment on mobile */
+        flex-shrink: 0; /* Prevents container from shrinking */
+    }
+    
+    .results-header a.back-btn-results {
+        margin-left: 0; /* Reset since container handles positioning */
         flex-shrink: 0; /* Prevents button from shrinking */
     }
 }
@@ -1749,9 +1763,15 @@ header {
         font-size: 1rem; /* Consistent with admin font size */
     }
     
+    .back-btn-results-container {
+        gap: 0.5rem; /* Even smaller gap on very small screens */
+    }
+    
     .results-header a.back-btn-results {
-        margin-left: auto; /* Maintains right alignment on mobile */
+        margin-left: 0; /* Reset since container handles positioning */
         flex-shrink: 0; /* Prevents button from shrinking */
+        font-size: 0.85rem; /* Slightly smaller text on very small screens */
+        padding: 0.5rem 1rem; /* Smaller padding for very small screens */
     }
 }
 
@@ -1831,24 +1851,24 @@ header {
     padding-top: 100px;
 }
 
-/* Votes grid container */
+/* Votes grid container - Wider cards */
 .votes-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 2rem;
-    padding: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem;
     max-width: 1400px;
     margin: 0 auto;
 }
 
-/* Votes card styling */
+/* Votes card styling - Compact version */
 .votes-card {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
-    border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 1.5rem;
+    padding: 1rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
@@ -1856,108 +1876,108 @@ header {
 }
 
 .votes-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
 }
 
-/* Vote count badge */
+/* Vote count badge - Compact */
 .vote-count-badge {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
+    top: 0.75rem;
+    right: 0.75rem;
     background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
-    padding: 0.5rem 0.8rem;
-    border-radius: 15px;
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
     text-align: center;
-    min-width: 60px;
+    min-width: 50px;
     z-index: 2;
 }
 
 .vote-count-badge .vote-number {
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 700;
     line-height: 1;
-    margin-bottom: 0.1rem;
+    margin-bottom: 0.05rem;
     display: block;
 }
 
 .vote-count-badge .vote-label {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     opacity: 0.9;
     text-transform: lowercase;
     display: block;
 }
 
-/* Image name styling */
+/* Image name styling - Compact */
 .votes-card .image-name {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: #2d3748;
     text-align: center;
-    padding: 0.5rem;
+    padding: 0.4rem;
     background: linear-gradient(135deg, #f7fafc, #edf2f7);
-    border-radius: 10px;
-    margin: 1rem 0;
+    border-radius: 8px;
+    margin: 0.7rem 0 0.5rem 0;
     word-break: break-word;
 }
 
-/* Voters section styling */
+/* Voters section styling - Compact */
 .voters-section {
-    margin: 1.5rem 0;
+    margin: 0.8rem 0 0 0;
 }
 
 .voters-header {
-    margin-bottom: 1rem;
+    margin-bottom: 0.6rem;
 }
 
 .voters-header h3 {
-    font-size: 1rem;
+    font-size: 0.9rem;
     color: #2d3748;
     margin: 0;
     font-weight: 600;
 }
 
-/* Voters list container */
+/* Voters list container - Compact */
 .voters-list-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    max-height: 150px;
+    display: block;
     overflow-y: auto;
-    padding: 0.5rem;
-    background: rgba(102, 126, 234, 0.05);
-    border-radius: 10px;
-    border: 1px solid rgba(102, 126, 234, 0.1);
+    padding: 0.4rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
 }
 
-/* Voter tag styling */
+/* Voter tag styling - Compact white style */
 .voter-tag {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-    padding: 0.4rem 0.8rem;
-    border-radius: 20px;
+    background: white;
+    color: #2d3748;
+    padding: 0.35rem 0.6rem;
+    border-radius: 6px;
     font-size: 0.8rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    white-space: nowrap;
+    font-weight: 400;
+    transition: all 0.2s ease;
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 0.2rem;
 }
 
 .voter-tag:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    background: #f7fafc;
+    border-color: #cbd5e0;
 }
 
 .voter-tag .voter-icon {
-    margin-right: 0.4rem;
-    font-size: 0.7rem;
+    margin-right: 0.5rem;
+    font-size: 0.9rem;
+    color: #718096;
 }
 
 .voter-tag .voter-name {
-    color: white;
-    font-weight: 500;
+    color: #2d3748;
+    font-weight: 400;
 }
 
 /* No votes message styling */
@@ -2034,23 +2054,23 @@ header {
 @media (max-width: 768px) {
     .votes-grid {
         grid-template-columns: 1fr;
-        gap: 1.5rem;
+        gap: 1rem;
         padding: 1rem;
     }
     
     .votes-card {
-        padding: 1rem;
+        padding: 0.8rem;
     }
     
     .vote-count-badge {
         top: 0.5rem;
         right: 0.5rem;
-        padding: 0.4rem 0.6rem;
-        min-width: 50px;
+        padding: 0.25rem 0.5rem;
+        min-width: 45px;
     }
     
     .vote-count-badge .vote-number {
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
     
     .vote-count-badge .vote-label {
@@ -2058,13 +2078,13 @@ header {
     }
     
     .voters-list-container {
-        max-height: 120px;
         padding: 0.3rem;
     }
     
     .voter-tag {
-        padding: 0.3rem 0.6rem;
+        padding: 0.3rem 0.5rem;
         font-size: 0.75rem;
+        margin-bottom: 0.15rem;
     }
     
     .voters-header h3 {
