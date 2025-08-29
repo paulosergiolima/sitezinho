@@ -1306,7 +1306,7 @@ header {
         margin-left: 0; /* Center button on mobile */
         align-self: center; /* Center the button */
         flex-shrink: 0; /* Prevents button from shrinking */
-        width: auto; /* Let button size naturally */
+        width: 100px; /* Let button size naturally */
     }
     
     .admin-header h1 {
