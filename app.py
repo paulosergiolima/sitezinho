@@ -131,16 +131,29 @@ def vote():
 
 @app.route("/count")
 def count():
-    secret_votes = []
+    # Dictionary to store vote count and voters for each image
+    votes_data = {}
+    
+    # Get all users who voted
     users = db.session.execute(db.select(User).order_by(User.username)).scalars()
-    for user_id, user in enumerate(users):
-        secret_votes.append(user.votes)
-    secret_votes = [x for xs in secret_votes for x in xs]
-    votes = {i: secret_votes.count(i) for i in secret_votes}
-    votes = {
-        k: v for k, v in sorted(votes.items(), key=lambda item: item[1], reverse=True)
+    
+    # Process each user's votes
+    for user in users:
+        for voted_image in user.votes:
+            if voted_image not in votes_data:
+                votes_data[voted_image] = {
+                    'count': 0,
+                    'voters': []
+                }
+            votes_data[voted_image]['count'] += 1
+            votes_data[voted_image]['voters'].append(user.username)
+    
+    # Sort by vote count (descending)
+    votes_data = {
+        k: v for k, v in sorted(votes_data.items(), key=lambda item: item[1]['count'], reverse=True)
     }
-    return render_template("count.html", images=votes)
+    
+    return render_template("count.html", images=votes_data)
 
 
 @app.route("/admin")
@@ -412,3 +425,8 @@ def votes():
             votes[vote].add(user.username)
     print(votes)
     return render_template("votes.html", votes=votes)
+
+
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000, debug=True)

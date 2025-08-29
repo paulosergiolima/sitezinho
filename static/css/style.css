@@ -1547,6 +1547,112 @@ header {
     text-transform: lowercase;
 }
 
+/* Voters icon in vote count */
+.voters-icon {
+    font-size: 0.7rem;
+    margin-top: 0.2rem;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.vote-count:hover .voters-icon {
+    opacity: 1;
+}
+
+/* Voters list styling */
+.voters-list {
+    position: absolute;
+    top: 80px;
+    right: 15px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    min-width: 200px;
+    max-width: 280px;
+    overflow: hidden;
+    animation: slideInVoters 0.3s ease;
+}
+
+.voters-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 0.8rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.close-voters {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+}
+
+.close-voters:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.voters-content {
+    padding: 0.5rem 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.voter-item {
+    display: flex;
+    align-items: center;
+    padding: 0.6rem 1rem;
+    transition: background 0.2s ease;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.voter-item:last-child {
+    border-bottom: none;
+}
+
+.voter-item:hover {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.voter-icon {
+    margin-right: 0.5rem;
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.voter-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #2d3748;
+    word-break: break-word;
+}
+
+/* Animation for voters list */
+@keyframes slideInVoters {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 /* Result image name styling */
 .result-image-name {
     font-size: 0.85rem;
@@ -1674,6 +1780,35 @@ header {
     
     .vote-label {
         font-size: 0.7rem;
+    }
+    
+    /* Mobile voters list adjustments */
+    .voters-list {
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+        width: auto;
+        top: 70px;
+    }
+    
+    .voters-header {
+        padding: 0.7rem;
+        font-size: 0.8rem;
+    }
+    
+    .close-voters {
+        width: 20px;
+        height: 20px;
+        font-size: 0.9rem;
+    }
+    
+    .voter-item {
+        padding: 0.5rem 0.7rem;
+    }
+    
+    .voter-name {
+        font-size: 0.8rem;
     }
     
     .result-card:nth-child(1) {
