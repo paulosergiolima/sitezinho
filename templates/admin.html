@@ -96,6 +96,57 @@
                     <div class="stat-label">Total de Votos</div>
                 </div>
             </div>
+
+            <div class="export-template">
+                <button onclick="export_merged_image()" class="control-button export-btn">
+                    <span>🎨</span>
+                    <div class="button-content">
+                        <div class="button-title">Exportar Collage</div>
+                        <div class="button-description">Baixar todas as imagens em uma única collage</div>
+                    </div>
+                </button>
+                
+                <!-- Advanced Export Options -->
+                <div class="export-options" id="exportOptions" style="display: none;">
+                    <div class="options-header">
+                        <h4>⚙️ Opções de Exportação</h4>
+                    </div>
+                    <div class="option-group">
+                        <label for="exportGap">Espaçamento entre imagens:</label>
+                        <input type="range" id="exportGap" min="0" max="10" value="2" />
+                        <span class="range-value" id="gapValue">2px</span>
+                    </div>
+                    <div class="option-group">
+                        <label for="exportFormat">Formato:</label>
+                        <select id="exportFormat">
+                            <option value="png">PNG (Alta qualidade)</option>
+                            <option value="jpeg">JPEG (Menor tamanho)</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <label>
+                            <input type="checkbox" id="fixedSize" />
+                            Tamanho fixo (1600x1600)
+                        </label>
+                    </div>
+                    <div class="fixed-size-options" id="fixedSizeOptions" style="display: none;">
+                        <div class="size-inputs">
+                            <input type="number" id="exportWidth" placeholder="Largura" value="1600" min="400" max="3000" />
+                            <span>x</span>
+                            <input type="number" id="exportHeight" placeholder="Altura" value="1600" min="400" max="3000" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="export-controls">
+                    <button onclick="toggleExportOptions()" class="control-button secondary small">
+                        <span>⚙️</span>
+                        <div class="button-content">
+                            <div class="button-title">Opções Avançadas</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
             
             <div class="vote-controls">
                 <button onclick="change_vote_unique()" class="control-button unique">

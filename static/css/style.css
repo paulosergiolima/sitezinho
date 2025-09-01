@@ -2138,3 +2138,291 @@ header {
         font-size: 1.2rem;
     }
 }
+
+/* ========================================
+   EXPORT COLLAGE FUNCTIONALITY
+   ======================================== */
+
+/* Export button special styling */
+.control-button.export-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.control-button.export-btn:hover {
+    background: linear-gradient(135deg, #5a6fd8, #6b44a0);
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+}
+
+.control-button.export-btn.loading {
+    opacity: 0.8;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.control-button.export-btn.loading::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Export Options Panel */
+.export-options {
+    margin-top: 1rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    border: 2px solid #e1e5e9;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.export-options:hover {
+    border-color: #667eea;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+}
+
+.options-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.options-header h4 {
+    font-size: 1.1rem;
+    color: #2d3748;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Option Groups */
+.option-group {
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.option-group label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Range Slider Styling */
+.option-group input[type="range"] {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: #e2e8f0;
+    outline: none;
+    transition: background 0.3s ease;
+}
+
+.option-group input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+    transition: all 0.2s ease;
+}
+
+.option-group input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.range-value {
+    font-weight: 600;
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    align-self: flex-end;
+}
+
+/* Select Styling */
+.option-group select {
+    padding: 0.75rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    font-size: 0.95rem;
+    color: #4a5568;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.option-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Checkbox Styling */
+.option-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #667eea;
+    cursor: pointer;
+}
+
+/* Fixed Size Options */
+.fixed-size-options {
+    margin-top: 0.75rem;
+    padding: 1rem;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.size-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.size-inputs input[type="number"] {
+    flex: 1;
+    padding: 0.5rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 0.9rem;
+    transition: border-color 0.3s ease;
+}
+
+.size-inputs input[type="number"]:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.size-inputs span {
+    font-weight: 600;
+    color: #667eea;
+    font-size: 1.1rem;
+}
+
+/* Secondary Button Styling */
+.control-button.secondary {
+    background: rgba(255, 255, 255, 0.9);
+    color: #4a5568;
+    border: 2px solid #e2e8f0;
+}
+
+.control-button.secondary:hover {
+    background: white;
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.control-button.secondary.small {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+}
+
+.control-button.secondary.small .button-title {
+    font-size: 0.85rem;
+}
+
+/* Export Controls */
+.export-controls {
+    margin: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+/* Notification System */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    color: #2d3748;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    min-width: 250px;
+    border-left: 4px solid #667eea;
+}
+
+.notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.notification.notification-success {
+    border-left-color: #4CAF50;
+}
+
+.notification.notification-error {
+    border-left-color: #f44336;
+}
+
+.notification-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.notification-message {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+/* Responsive Export Options */
+@media (max-width: 768px) {
+    .export-options {
+        padding: 1rem;
+    }
+    
+    .size-inputs {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .size-inputs span {
+        align-self: center;
+        margin: 0.25rem 0;
+    }
+    
+    .notification {
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        transform: translateY(-100%);
+    }
+    
+    .notification.show {
+        transform: translateY(0);
+    }
+}

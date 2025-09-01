@@ -784,3 +784,120 @@ function toggleVoters(votersId) {
     }, 300);
   }
 }
+
+
+
+
+function export_merged_image() {
+  const button = document.querySelector('.export-btn');
+  const originalText = button.querySelector('.button-title').textContent;
+  
+  // Show loading state
+  button.disabled = true;
+  button.classList.add('loading');
+  button.querySelector('.button-title').textContent = 'Gerando Collage...';
+  button.querySelector('span').textContent = '⏳';
+  
+  // Get export options
+  const gap = document.getElementById('exportGap').value;
+  const format = document.getElementById('exportFormat').value;
+  const fixedSize = document.getElementById('fixedSize').checked;
+  
+  // Build URL with parameters
+  let url = '/merged_image?';
+  const params = new URLSearchParams();
+  
+  params.append('gap', gap);
+  params.append('format', format);
+  
+  if (fixedSize) {
+    const width = document.getElementById('exportWidth').value;
+    const height = document.getElementById('exportHeight').value;
+    params.append('width', width);
+    params.append('height', height);
+  }
+  
+  url += params.toString();
+  
+  // Create temporary link for download
+  const link = document.createElement('a');
+  link.href = url;
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  
+  // Trigger download
+  link.click();
+  
+  // Cleanup and reset button state
+  setTimeout(() => {
+    document.body.removeChild(link);
+    button.disabled = false;
+    button.classList.remove('loading');
+    button.querySelector('.button-title').textContent = originalText;
+    button.querySelector('span').textContent = '🎨';
+    
+    // Show success message
+    showNotification('Collage gerada com sucesso!', 'success');
+  }, 1000);
+}
+
+function toggleExportOptions() {
+  const options = document.getElementById('exportOptions');
+  const isVisible = options.style.display !== 'none';
+  
+  if (isVisible) {
+    options.style.display = 'none';
+  } else {
+    options.style.display = 'block';
+    // Animate in
+    options.style.opacity = '0';
+    setTimeout(() => {
+      options.style.opacity = '1';
+    }, 10);
+  }
+}
+
+function showNotification(message, type = 'info') {
+  // Create notification element
+  const notification = document.createElement('div');
+  notification.className = `notification notification-${type}`;
+  notification.innerHTML = `
+    <span class="notification-icon">${type === 'success' ? '✅' : '📢'}</span>
+    <span class="notification-message">${message}</span>
+  `;
+  
+  // Add to page
+  document.body.appendChild(notification);
+  
+  // Show animation
+  setTimeout(() => notification.classList.add('show'), 100);
+  
+  // Remove after delay
+  setTimeout(() => {
+    notification.classList.remove('show');
+    setTimeout(() => document.body.removeChild(notification), 300);
+  }, 3000);
+}
+
+// Initialize export options interactions
+document.addEventListener('DOMContentLoaded', function() {
+  // Gap slider interaction
+  const gapSlider = document.getElementById('exportGap');
+  const gapValue = document.getElementById('gapValue');
+  
+  if (gapSlider && gapValue) {
+    gapSlider.addEventListener('input', function() {
+      gapValue.textContent = this.value + 'px';
+    });
+  }
+  
+  // Fixed size checkbox interaction
+  const fixedSizeCheckbox = document.getElementById('fixedSize');
+  const fixedSizeOptions = document.getElementById('fixedSizeOptions');
+  
+  if (fixedSizeCheckbox && fixedSizeOptions) {
+    fixedSizeCheckbox.addEventListener('change', function() {
+      fixedSizeOptions.style.display = this.checked ? 'block' : 'none';
+    });
+  }
+});
