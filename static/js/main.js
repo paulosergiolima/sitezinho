@@ -3,6 +3,44 @@ let single_vote = false;
 let vote_percentage = 50;
 let total_images = 0;
 let max_votes = 1;
+
+/**
+ * Force clear all checkboxes - especially useful for mobile browsers
+ * that might cache form states after reload
+ */
+function clearAllCheckboxes() {
+  const checkboxes = document.querySelectorAll("input[type='checkbox']");
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = false;
+    // Force trigger change event to update any UI that depends on checkbox state
+    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  
+  console.log('All checkboxes cleared');
+}
+
+/**
+ * Initialize page state - ensure clean slate on page load
+ */
+function initializePage() {
+  // Clear all checkboxes on page load (mobile cache fix)
+  clearAllCheckboxes();
+  
+  // Verify checkboxes are actually cleared
+  const checkedBoxes = document.querySelectorAll("input[type='checkbox']:checked");
+  if (checkedBoxes.length > 0) {
+    console.warn(`Warning: ${checkedBoxes.length} checkboxes still checked after initialization`);
+    // Force clear again if needed
+    checkedBoxes.forEach(box => box.checked = false);
+  }
+  
+  console.log('Page initialized - all checkboxes cleared');
+  
+  // Update vote counter if in multiple choice mode
+  if (typeof updateVoteCounter === 'function') {
+    updateVoteCounter();
+  }
+}
 async function vote() {
   try {
     const username = prompt("Qual seu usuário?");
@@ -65,7 +103,14 @@ async function vote() {
     // Check if vote was successful
     if (result.success) {
       alert("Seu voto foi contabilizado");
-      window.location.reload();
+      
+      // Force clear all checkboxes before reload (mobile fix)
+      clearAllCheckboxes();
+      
+      // Add a small delay to ensure checkbox clearing is processed
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
     } else {
       alert(`Erro: ${result.error || 'Não foi possível registrar o voto'}`);
       return;
@@ -74,8 +119,14 @@ async function vote() {
   } catch (error) {
     console.error('Error:', error);
     alert("Erro ao votar. Tente novamente.");
+    
+    // Clear checkboxes even on error (mobile fix)
+    clearAllCheckboxes();
+    
     // Reload even on error to reset form state
-    window.location.reload();
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
   }
 }
 
@@ -566,8 +617,10 @@ function closeModal() {
   }
 }
 
-// Initialize modal event listeners when page loads
+// Initialize page and modal event listeners when page loads
 document.addEventListener('DOMContentLoaded', function() {
+  // Initialize page state (clear checkboxes, etc.)
+  initializePage();
   const modal = document.getElementById('imageModal');
   const closeBtn = document.querySelector('.close-modal');
   const modalImage = document.getElementById('modalImage');
@@ -731,3 +784,106 @@ function toggleVoters(votersId) {
     }, 300);
   }
 }
+
+
+
+
+function export_merged_image() {
+  const button = document.querySelector('.export-btn');
+  const originalText = button.querySelector('.button-title').textContent;
+  
+  // Show loading state
+  button.disabled = true;
+  button.classList.add('loading');
+  button.querySelector('.button-title').textContent = 'Gerando Collage...';
+  button.querySelector('span').textContent = '⏳';
+  
+  // Get export options
+  const gap = document.getElementById('exportGap').value;
+  const format = document.getElementById('exportFormat').value;
+  const fixedSize = document.getElementById('fixedSize').checked;
+  
+  // Build URL with parameters
+  let url = '/merged_image?';
+  const params = new URLSearchParams();
+  
+  params.append('gap', gap);
+  params.append('format', format);
+  
+  if (fixedSize) {
+    const width = document.getElementById('exportWidth').value;
+    const height = document.getElementById('exportHeight').value;
+    params.append('width', width);
+    params.append('height', height);
+  }
+  
+  url += params.toString();
+  
+  // Create temporary link for download
+  const link = document.createElement('a');
+  link.href = url;
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  
+  // Trigger download
+  link.click();
+  
+  // Cleanup and reset button state
+  setTimeout(() => {
+    document.body.removeChild(link);
+    button.disabled = false;
+    button.classList.remove('loading');
+    button.querySelector('.button-title').textContent = originalText;
+    button.querySelector('span').textContent = '🎨';
+    
+    // Show success message
+    showNotification('Collage gerada com sucesso!', 'success');
+  }, 1000);
+}
+
+// Toggle function removed - options are now always visible
+
+function showNotification(message, type = 'info') {
+  // Create notification element
+  const notification = document.createElement('div');
+  notification.className = `notification notification-${type}`;
+  notification.innerHTML = `
+    <span class="notification-icon">${type === 'success' ? '✅' : '📢'}</span>
+    <span class="notification-message">${message}</span>
+  `;
+  
+  // Add to page
+  document.body.appendChild(notification);
+  
+  // Show animation
+  setTimeout(() => notification.classList.add('show'), 100);
+  
+  // Remove after delay
+  setTimeout(() => {
+    notification.classList.remove('show');
+    setTimeout(() => document.body.removeChild(notification), 300);
+  }, 3000);
+}
+
+// Initialize export options interactions
+document.addEventListener('DOMContentLoaded', function() {
+  // Gap slider interaction
+  const gapSlider = document.getElementById('exportGap');
+  const gapValue = document.getElementById('gapValue');
+  
+  if (gapSlider && gapValue) {
+    gapSlider.addEventListener('input', function() {
+      gapValue.textContent = this.value + 'px';
+    });
+  }
+  
+  // Fixed size checkbox interaction
+  const fixedSizeCheckbox = document.getElementById('fixedSize');
+  const fixedSizeOptions = document.getElementById('fixedSizeOptions');
+  
+  if (fixedSizeCheckbox && fixedSizeOptions) {
+    fixedSizeCheckbox.addEventListener('change', function() {
+      fixedSizeOptions.style.display = this.checked ? 'block' : 'none';
+    });
+  }
+});

@@ -17,11 +17,11 @@ from werkzeug.utils import secure_filename
 import shutil
 import json
 import math
+from PIL import Image, ImageDraw, ImageFont
+import io
+from flask import send_file
 
-global unique_vote, vote_percentage
 FILENAME = "artes.zip"
-unique_vote = True
-vote_percentage = 50  # Default: user can vote for 50% of available images
 f = open("logs.txt", "a")
 load_dotenv()
 
@@ -58,8 +58,250 @@ class User(db.Model):
         self.created = created
 
 
+class AppConfig(db.Model):
+    """Model to store application configuration settings"""
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    config_key: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    config_value: Mapped[str] = mapped_column(String(255), nullable=False)
+    created: Mapped[datetime.datetime] = mapped_column(DateTime)
+    updated: Mapped[datetime.datetime] = mapped_column(DateTime)
+
+    def __init__(self, *, config_key: str, config_value: str):
+        self.config_key = config_key
+        self.config_value = config_value
+        self.created = datetime.datetime.now(ZoneInfo("America/Sao_Paulo"))
+        self.updated = datetime.datetime.now(ZoneInfo("America/Sao_Paulo"))
+
+
+def get_config_value(key: str, default_value: str = None) -> str:
+    """Get configuration value from database"""
+    config = db.session.execute(
+        db.select(AppConfig).where(AppConfig.config_key == key)
+    ).scalar_one_or_none()
+    
+    if config:
+        return config.config_value
+    return default_value
+
+
+def set_config_value(key: str, value: str) -> bool:
+    """Set configuration value in database"""
+    try:
+        config = db.session.execute(
+            db.select(AppConfig).where(AppConfig.config_key == key)
+        ).scalar_one_or_none()
+        
+        if config:
+            # Update existing config
+            config.config_value = value
+            config.updated = datetime.datetime.now(ZoneInfo("America/Sao_Paulo"))
+        else:
+            # Create new config
+            config = AppConfig(config_key=key, config_value=value)
+            db.session.add(config)
+        
+        db.session.commit()
+        return True
+    except Exception as e:
+        db.session.rollback()
+        f.write(f"Error setting config {key}: {str(e)}\n")
+        return False
+
+
+def get_single_vote_setting() -> bool:
+    """Get single vote setting from database"""
+    value = get_config_value("single_vote", "True")
+    return value.lower() == "true"
+
+
+def get_vote_percentage_setting() -> int:
+    """Get vote percentage setting from database"""
+    value = get_config_value("vote_percentage", "50")
+    try:
+        return int(value)
+    except ValueError:
+        return 50
+
+
+def initialize_default_configs():
+    """Initialize default configuration values if they don't exist"""
+    # Set default single_vote if not exists
+    if not get_config_value("single_vote"):
+        set_config_value("single_vote", "True")
+    
+    # Set default vote_percentage if not exists  
+    if not get_config_value("vote_percentage"):
+        set_config_value("vote_percentage", "50")
+
+
+def create_merged_image(images_dir="./static/images", fixed_size=None, background_color=(240, 240, 240), gap_between_images=2):
+    """
+    Create a single image with fixed dimensions by combining all images from the specified directory.
+    The function automatically calculates the best grid layout and image sizes to fit the fixed canvas.
+    All images will have exactly the same size and be positioned with minimal gaps.
+    
+    Args:
+        images_dir (str): Directory containing the images to merge
+        fixed_size (tuple): Fixed canvas size (width, height) - default 1600x1600
+        background_color (tuple): RGB background color for the merged image
+        gap_between_images (int): Gap in pixels between images (0 = coladas, 2 = default small gap)
+    
+    Returns:
+        PIL.Image: The merged image object with fixed dimensions and uniform image sizes
+    """
+    try:
+        # Get all image files from the directory
+        image_files = [
+            f for f in listdir(images_dir) 
+            if isfile(join(images_dir, f)) and f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.tiff'))
+        ]
+        
+        # Log the number of images found
+        f.write(f"Found {len(image_files)} images to merge\n")
+        
+        # Canvas will be created after determining size (fixed or dynamic)
+        
+        if not image_files:
+            # Create a "No images" placeholder with default size
+            placeholder_size = fixed_size if fixed_size else (800, 400)
+            placeholder = Image.new('RGB', placeholder_size, background_color)
+            draw = ImageDraw.Draw(placeholder)
+            try:
+                font = ImageFont.load_default()
+                draw.text((placeholder_size[0]//2, placeholder_size[1]//2), "No images found", 
+                         font=font, fill=(128, 128, 128), anchor="mm")
+            except:
+                draw.text((placeholder_size[0]//2 - 50, placeholder_size[1]//2), "No images found", fill=(128, 128, 128))
+            return placeholder
+        
+        # Calculate optimal grid layout based on number of images
+        num_images = len(image_files)
+        
+        # Calculate grid dimensions with minimum 6 columns
+        grid_cols = max(6, math.ceil(math.sqrt(num_images)))
+        grid_rows = math.ceil(num_images / grid_cols)
+        
+        # Adjust if we have too many empty slots, but keep minimum 6 columns
+        while grid_cols * (grid_rows - 1) >= num_images and grid_rows > 1 and grid_cols > 6:
+            grid_rows -= 1
+        
+        f.write(f"Using grid layout: {grid_cols}x{grid_rows} for {num_images} images\n")
+        
+        # If no fixed_size provided, calculate dynamic size based on grid
+        if fixed_size is None:
+            # Standard image size for good quality
+            standard_image_size = 200
+            outer_margin = 10
+            
+            # Calculate total canvas size needed
+            canvas_width = (standard_image_size * grid_cols) + (gap_between_images * (grid_cols - 1)) + (outer_margin * 2)
+            canvas_height = (standard_image_size * grid_rows) + (gap_between_images * (grid_rows - 1)) + (outer_margin * 2)
+            
+            # Create new canvas with dynamic size
+            merged_image = Image.new('RGB', (canvas_width, canvas_height), background_color)
+            image_size = standard_image_size
+            
+            f.write(f"Dynamic canvas size: {canvas_width}x{canvas_height} with standard image size: {image_size}x{image_size}\n")
+        else:
+            # Use provided fixed size
+            canvas_width, canvas_height = fixed_size
+            merged_image = Image.new('RGB', fixed_size, background_color)
+            
+            # Calculate spacing and image size to fit the fixed canvas
+            outer_margin = 10
+            
+            # Calculate available space for images
+            available_width = canvas_width - (outer_margin * 2)
+            available_height = canvas_height - (outer_margin * 2)
+            
+            # Calculate space needed for gaps
+            total_gap_width = gap_between_images * (grid_cols - 1)
+            total_gap_height = gap_between_images * (grid_rows - 1)
+            
+            # Calculate exact image size to fill the available space
+            image_width = (available_width - total_gap_width) // grid_cols
+            image_height = (available_height - total_gap_height) // grid_rows
+            
+            # Make images square using the smaller dimension to ensure they fit
+            image_size = min(image_width, image_height)
+            
+            f.write(f"Fixed canvas size: {canvas_width}x{canvas_height}, calculated image size: {image_size}x{image_size}\n")
+        
+        f.write(f"Gap between images: {gap_between_images}px, Outer margin: {outer_margin}px\n")
+        
+        # Process each image and place it in the grid
+        for idx, image_file in enumerate(image_files):
+            try:
+                # Calculate grid position
+                row = idx // grid_cols
+                col = idx % grid_cols
+                
+                # Calculate exact position for this image (no centering, exact placement)
+                paste_x = outer_margin + (col * (image_size + gap_between_images))
+                paste_y = outer_margin + (row * (image_size + gap_between_images))
+                
+                # Open and crop the image to exact square size
+                img_path = join(images_dir, image_file)
+                with Image.open(img_path) as img:
+                    # Convert to RGB if necessary (handles RGBA, grayscale, etc.)
+                    if img.mode != 'RGB':
+                        img = img.convert('RGB')
+                    
+                    # Get original dimensions
+                    orig_width, orig_height = img.size
+                    
+                    # Calculate crop area to make it square (center crop)
+                    if orig_width > orig_height:
+                        # Landscape: crop from left and right
+                        crop_size = orig_height
+                        left = (orig_width - crop_size) // 2
+                        top = 0
+                        right = left + crop_size
+                        bottom = crop_size
+                    else:
+                        # Portrait or square: crop from top and bottom
+                        crop_size = orig_width
+                        left = 0
+                        top = (orig_height - crop_size) // 2
+                        right = crop_size
+                        bottom = top + crop_size
+                    
+                    # Crop to square
+                    img_cropped = img.crop((left, top, right, bottom))
+                    
+                    # Resize the cropped square to exact target size
+                    img_final = img_cropped.resize((image_size, image_size), Image.Resampling.LANCZOS)
+                    
+                    # Paste the image at exact position
+                    merged_image.paste(img_final, (paste_x, paste_y))
+                    
+                    f.write(f"Placed image {idx+1}/{num_images}: {image_file} at exact position ({paste_x}, {paste_y})\n")
+                    
+            except Exception as e:
+                # Log error for individual image but continue processing others
+                f.write(f"Error processing image {image_file}: {str(e)}\n")
+                continue
+        
+        return merged_image
+        
+    except Exception as e:
+        f.write(f"Error creating merged image: {str(e)}\n")
+        # Return a simple error image with fixed size
+        error_image = Image.new('RGB', fixed_size, (255, 100, 100))
+        draw = ImageDraw.Draw(error_image)
+        try:
+            font = ImageFont.load_default()
+            draw.text((fixed_size[0]//2, fixed_size[1]//2), "Error creating image", 
+                     font=font, fill=(255, 255, 255), anchor="mm")
+        except:
+            draw.text((fixed_size[0]//2 - 80, fixed_size[1]//2), "Error creating image", fill=(255, 255, 255))
+        return error_image
+
+
 with app.app_context():
     db.create_all()
+    # Initialize default configurations
+    initialize_default_configs()
 
 
 @app.route("/")
@@ -70,18 +312,22 @@ def hello_world():
     count = len(onlyfiles)
     print(datetime.datetime.now(ZoneInfo("America/Sao_Paulo")).second)
     
+    # Get current settings from database
+    single_vote = get_single_vote_setting()
+    vote_percentage = get_vote_percentage_setting()
+    
     # Create vote configuration JSON
     vote_config_json = json.dumps({
-        "single_vote": unique_vote,
+        "single_vote": single_vote,
         "percentage": vote_percentage,
         "total_images": count,
-        "max_votes": 1 if unique_vote else math.ceil(count * vote_percentage / 100),
+        "max_votes": 1 if single_vote else math.ceil(count * vote_percentage / 100),
     })
     
     return render_template(
         "index.html", 
         images=onlyfiles, 
-        unique_vote=unique_vote, 
+        unique_vote=single_vote, 
         count=count, 
         vote_percentage=vote_percentage,
         vote_config_json=vote_config_json
@@ -170,6 +416,9 @@ def admin():
         f for f in listdir("./static/images") if isfile(join("./static/images", f))
     ]
     image_count = len(onlyfiles)
+    
+    # Get current settings from database
+    vote_percentage = get_vote_percentage_setting()
     
     return render_template("admin.html", count=count_votes, users=users, vote_percentage=vote_percentage, image_count=image_count)
 
@@ -278,22 +527,46 @@ def delete_votes():
 
 @app.route("/change_vote_unique")
 def change_vote_unique():
-    global unique_vote
-    unique_vote = True
-    return json.dumps({"success": True}), 200, {"ContentType": "application/json"}
+    """Set voting mode to single vote (unique vote)"""
+    success = set_config_value("single_vote", "True")
+    f.write("Vote mode changed to: single vote\n")
+    return json.dumps({"success": success}), 200, {"ContentType": "application/json"}
 
 
 @app.route("/change_vote_multiple")
 def change_vote_multiple():
-    global unique_vote
-    unique_vote = False
-    return json.dumps({"success": True}), 200, {"ContentType": "application/json"}
+    """Set voting mode to multiple vote"""
+    success = set_config_value("single_vote", "False")
+    f.write("Vote mode changed to: multiple vote\n")
+    return json.dumps({"success": success}), 200, {"ContentType": "application/json"}
+
+
+@app.route("/get_config", methods=["GET"])
+def get_config():
+    """Get current application configuration"""
+    try:
+        single_vote = get_single_vote_setting()
+        vote_percentage = get_vote_percentage_setting()
+        
+        return json.dumps({
+            "success": True,
+            "config": {
+                "single_vote": single_vote,
+                "vote_percentage": vote_percentage
+            }
+        }), 200, {"ContentType": "application/json"}
+        
+    except Exception as e:
+        f.write(f"Error getting config: {str(e)}\n")
+        return json.dumps({
+            "success": False,
+            "error": "Failed to get configuration"
+        }), 500, {"ContentType": "application/json"}
 
 
 @app.route("/set_vote_percentage", methods=["POST"])
 def set_vote_percentage():
     """Set the percentage of images a user can vote for in multiple choice mode"""
-    global vote_percentage
     try:
         data = request.get_json()
         percentage = data.get('percentage', 50)
@@ -305,19 +578,28 @@ def set_vote_percentage():
                 "error": "Percentage must be between 1 and 100"
             }), 400, {"ContentType": "application/json"}
         
-        vote_percentage = int(percentage)
-        f.write(f"Vote percentage changed to: {vote_percentage}%\n")
+        percentage_int = int(percentage)
         
-        return json.dumps({
-            "success": True, 
-            "percentage": vote_percentage
-        }), 200, {"ContentType": "application/json"}
+        # Save to database
+        success = set_config_value("vote_percentage", str(percentage_int))
+        
+        if success:
+            f.write(f"Vote percentage changed to: {percentage_int}%\n")
+            return json.dumps({
+                "success": True, 
+                "percentage": percentage_int
+            }), 200, {"ContentType": "application/json"}
+        else:
+            return json.dumps({
+                "success": False, 
+                "error": "Failed to save configuration"
+            }), 500, {"ContentType": "application/json"}
         
     except Exception as e:
         f.write(f"Error setting vote percentage: {str(e)}\n")
         return json.dumps({
             "success": False, 
-            "error": "TODO better error handling",
+            "error": "Database error occurred",
         }), 500, {"ContentType": "application/json"}
 
 
@@ -425,3 +707,97 @@ def votes():
             votes[vote].add(user.username)
     print(votes)
     return render_template("votes.html", votes=votes)
+
+
+@app.route("/merged_image")
+def merged_image():
+    """
+    Generate and return a merged image containing all images from the static/images directory.
+    All images are cropped to squares and have exactly the same size with uniform spacing.
+    Layout uses minimum 6 columns and automatically adjusts canvas size unless specified.
+    
+    Query parameters:
+        - width (int): Canvas width in pixels (optional, enables fixed size mode, range: 400-3000)
+        - height (int): Canvas height in pixels (optional, enables fixed size mode, range: 400-3000)
+        - gap (int): Gap between images in pixels (default: 2, range: 0-20, 0=coladas)
+        - format (str): Output format - 'png' or 'jpeg' (default: 'png')
+        
+    Modes:
+        - Dynamic size (default): Optimal canvas size based on image count, min 6 columns
+        - Fixed size: Specify both width and height to force specific canvas dimensions
+    """
+    try:
+        # List and count images for logging
+        images = os.listdir("./static/images")
+        f.write(f"Starting image merge process with {len(images)} files in directory\n")
+
+        # Get query parameters with defaults
+        canvas_width = request.args.get('width', type=int)  # None by default for dynamic sizing
+        canvas_height = request.args.get('height', type=int)  # None by default for dynamic sizing
+        gap = request.args.get('gap', 2, type=int)  # Gap between images
+        output_format = request.args.get('format', 'png').lower()
+        
+        # Determine if using fixed or dynamic size
+        if canvas_width and canvas_height:
+            # Validate fixed size parameters
+            canvas_width = max(400, min(canvas_width, 3000))  # Limit between 400 and 3000 pixels
+            canvas_height = max(400, min(canvas_height, 3000))  # Limit between 400 and 3000 pixels
+            fixed_size = (canvas_width, canvas_height)
+            f.write(f"Using fixed canvas size: {canvas_width}x{canvas_height}\n")
+        else:
+            # Use dynamic sizing
+            fixed_size = None
+            f.write("Using dynamic canvas size based on image count\n")
+        
+        # Validate other parameters
+        gap = max(0, min(gap, 20))  # Gap between 0 and 20 pixels
+        output_format = 'PNG' if output_format == 'png' else 'JPEG'
+        
+        # Create the merged image
+        merged_img = create_merged_image(
+            images_dir="./static/images",
+            fixed_size=fixed_size,
+            background_color=(240, 240, 240),  # Light gray background
+            gap_between_images=gap
+        )
+        
+        # Save image to memory buffer
+        img_buffer = io.BytesIO()
+        merged_img.save(img_buffer, format=output_format, quality=95)
+        img_buffer.seek(0)
+        
+        # Determine file extension and mimetype
+        file_extension = 'png' if output_format == 'PNG' else 'jpg'
+        mimetype = 'image/png' if output_format == 'PNG' else 'image/jpeg'
+        
+        # Generate filename with current timestamp
+        timestamp = datetime.datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%Y%m%d_%H%M%S")
+        
+        if fixed_size:
+            filename = f"merged_images_{canvas_width}x{canvas_height}_{timestamp}.{file_extension}"
+            size_info = f"canvas={canvas_width}x{canvas_height}"
+        else:
+            actual_size = merged_img.size
+            filename = f"merged_images_dynamic_{actual_size[0]}x{actual_size[1]}_{timestamp}.{file_extension}"
+            size_info = f"dynamic_size={actual_size[0]}x{actual_size[1]}"
+        
+        # Log the operation
+        f.write(f"Generated merged image: {filename} ({size_info}, gap={gap}px, format={output_format})\n")
+        
+        return send_file(
+            img_buffer,
+            mimetype=mimetype,
+            as_attachment=True,
+            download_name=filename
+        )
+        
+    except Exception as e:
+        error_msg = f"Error generating merged image: {str(e)}"
+        f.write(f"{error_msg}\n")
+        return jsonify({
+            "success": False,
+            "error": "Failed to generate merged image"
+        }), 500
+
+
+
