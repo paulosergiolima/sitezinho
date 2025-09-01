@@ -841,21 +841,7 @@ function export_merged_image() {
   }, 1000);
 }
 
-function toggleExportOptions() {
-  const options = document.getElementById('exportOptions');
-  const isVisible = options.style.display !== 'none';
-  
-  if (isVisible) {
-    options.style.display = 'none';
-  } else {
-    options.style.display = 'block';
-    // Animate in
-    options.style.opacity = '0';
-    setTimeout(() => {
-      options.style.opacity = '1';
-    }, 10);
-  }
-}
+// Toggle function removed - options are now always visible
 
 function showNotification(message, type = 'info') {
   // Create notification element
