@@ -18,10 +18,7 @@ import shutil
 import json
 import math
 
-global unique_vote, vote_percentage
 FILENAME = "artes.zip"
-unique_vote = True
-vote_percentage = 50  # Default: user can vote for 50% of available images
 f = open("logs.txt", "a")
 load_dotenv()
 
@@ -58,8 +55,86 @@ class User(db.Model):
         self.created = created
 
 
+class AppConfig(db.Model):
+    """Model to store application configuration settings"""
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    config_key: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    config_value: Mapped[str] = mapped_column(String(255), nullable=False)
+    created: Mapped[datetime.datetime] = mapped_column(DateTime)
+    updated: Mapped[datetime.datetime] = mapped_column(DateTime)
+
+    def __init__(self, *, config_key: str, config_value: str):
+        self.config_key = config_key
+        self.config_value = config_value
+        self.created = datetime.datetime.now(ZoneInfo("America/Sao_Paulo"))
+        self.updated = datetime.datetime.now(ZoneInfo("America/Sao_Paulo"))
+
+
+def get_config_value(key: str, default_value: str = None) -> str:
+    """Get configuration value from database"""
+    config = db.session.execute(
+        db.select(AppConfig).where(AppConfig.config_key == key)
+    ).scalar_one_or_none()
+    
+    if config:
+        return config.config_value
+    return default_value
+
+
+def set_config_value(key: str, value: str) -> bool:
+    """Set configuration value in database"""
+    try:
+        config = db.session.execute(
+            db.select(AppConfig).where(AppConfig.config_key == key)
+        ).scalar_one_or_none()
+        
+        if config:
+            # Update existing config
+            config.config_value = value
+            config.updated = datetime.datetime.now(ZoneInfo("America/Sao_Paulo"))
+        else:
+            # Create new config
+            config = AppConfig(config_key=key, config_value=value)
+            db.session.add(config)
+        
+        db.session.commit()
+        return True
+    except Exception as e:
+        db.session.rollback()
+        f.write(f"Error setting config {key}: {str(e)}\n")
+        return False
+
+
+def get_single_vote_setting() -> bool:
+    """Get single vote setting from database"""
+    value = get_config_value("single_vote", "True")
+    return value.lower() == "true"
+
+
+def get_vote_percentage_setting() -> int:
+    """Get vote percentage setting from database"""
+    value = get_config_value("vote_percentage", "50")
+    try:
+        return int(value)
+    except ValueError:
+        return 50
+
+
+def initialize_default_configs():
+    """Initialize default configuration values if they don't exist"""
+    # Set default single_vote if not exists
+    if not get_config_value("single_vote"):
+        set_config_value("single_vote", "True")
+    
+    # Set default vote_percentage if not exists  
+    if not get_config_value("vote_percentage"):
+        set_config_value("vote_percentage", "50")
+
+
 with app.app_context():
     db.create_all()
+    # Initialize default configurations
+    initialize_default_configs()
 
 
 @app.route("/")
@@ -70,18 +145,22 @@ def hello_world():
     count = len(onlyfiles)
     print(datetime.datetime.now(ZoneInfo("America/Sao_Paulo")).second)
     
+    # Get current settings from database
+    single_vote = get_single_vote_setting()
+    vote_percentage = get_vote_percentage_setting()
+    
     # Create vote configuration JSON
     vote_config_json = json.dumps({
-        "single_vote": unique_vote,
+        "single_vote": single_vote,
         "percentage": vote_percentage,
         "total_images": count,
-        "max_votes": 1 if unique_vote else math.ceil(count * vote_percentage / 100),
+        "max_votes": 1 if single_vote else math.ceil(count * vote_percentage / 100),
     })
     
     return render_template(
         "index.html", 
         images=onlyfiles, 
-        unique_vote=unique_vote, 
+        unique_vote=single_vote, 
         count=count, 
         vote_percentage=vote_percentage,
         vote_config_json=vote_config_json
@@ -170,6 +249,9 @@ def admin():
         f for f in listdir("./static/images") if isfile(join("./static/images", f))
     ]
     image_count = len(onlyfiles)
+    
+    # Get current settings from database
+    vote_percentage = get_vote_percentage_setting()
     
     return render_template("admin.html", count=count_votes, users=users, vote_percentage=vote_percentage, image_count=image_count)
 
@@ -278,22 +360,46 @@ def delete_votes():
 
 @app.route("/change_vote_unique")
 def change_vote_unique():
-    global unique_vote
-    unique_vote = True
-    return json.dumps({"success": True}), 200, {"ContentType": "application/json"}
+    """Set voting mode to single vote (unique vote)"""
+    success = set_config_value("single_vote", "True")
+    f.write("Vote mode changed to: single vote\n")
+    return json.dumps({"success": success}), 200, {"ContentType": "application/json"}
 
 
 @app.route("/change_vote_multiple")
 def change_vote_multiple():
-    global unique_vote
-    unique_vote = False
-    return json.dumps({"success": True}), 200, {"ContentType": "application/json"}
+    """Set voting mode to multiple vote"""
+    success = set_config_value("single_vote", "False")
+    f.write("Vote mode changed to: multiple vote\n")
+    return json.dumps({"success": success}), 200, {"ContentType": "application/json"}
+
+
+@app.route("/get_config", methods=["GET"])
+def get_config():
+    """Get current application configuration"""
+    try:
+        single_vote = get_single_vote_setting()
+        vote_percentage = get_vote_percentage_setting()
+        
+        return json.dumps({
+            "success": True,
+            "config": {
+                "single_vote": single_vote,
+                "vote_percentage": vote_percentage
+            }
+        }), 200, {"ContentType": "application/json"}
+        
+    except Exception as e:
+        f.write(f"Error getting config: {str(e)}\n")
+        return json.dumps({
+            "success": False,
+            "error": "Failed to get configuration"
+        }), 500, {"ContentType": "application/json"}
 
 
 @app.route("/set_vote_percentage", methods=["POST"])
 def set_vote_percentage():
     """Set the percentage of images a user can vote for in multiple choice mode"""
-    global vote_percentage
     try:
         data = request.get_json()
         percentage = data.get('percentage', 50)
@@ -305,19 +411,28 @@ def set_vote_percentage():
                 "error": "Percentage must be between 1 and 100"
             }), 400, {"ContentType": "application/json"}
         
-        vote_percentage = int(percentage)
-        f.write(f"Vote percentage changed to: {vote_percentage}%\n")
+        percentage_int = int(percentage)
         
-        return json.dumps({
-            "success": True, 
-            "percentage": vote_percentage
-        }), 200, {"ContentType": "application/json"}
+        # Save to database
+        success = set_config_value("vote_percentage", str(percentage_int))
+        
+        if success:
+            f.write(f"Vote percentage changed to: {percentage_int}%\n")
+            return json.dumps({
+                "success": True, 
+                "percentage": percentage_int
+            }), 200, {"ContentType": "application/json"}
+        else:
+            return json.dumps({
+                "success": False, 
+                "error": "Failed to save configuration"
+            }), 500, {"ContentType": "application/json"}
         
     except Exception as e:
         f.write(f"Error setting vote percentage: {str(e)}\n")
         return json.dumps({
             "success": False, 
-            "error": "TODO better error handling",
+            "error": "Database error occurred",
         }), 500, {"ContentType": "application/json"}
 
 
@@ -427,6 +542,3 @@ def votes():
     return render_template("votes.html", votes=votes)
 
 
-
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True)
