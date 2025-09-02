@@ -32,7 +32,7 @@
             {% if unique_vote %}
                 🔘 Escolha única
             {% else %}
-                ☑️ Múltipla escolha
+                ☑️ Multi escolha
             {% endif %}
         </span>
     </div>      
@@ -121,7 +121,7 @@
                 const checkedBoxes = $('input.chk:checked').length;
                 const voteIndicator = document.querySelector('.vote-mode-indicator');
                 if (voteIndicator) {
-                    voteIndicator.textContent = `☑️ Múltipla escolha (${checkedBoxes}/${window.VOTE_CONFIG.max_votes} votos)`;
+                    voteIndicator.textContent = `☑️ Multi escolhas (${checkedBoxes}/${window.VOTE_CONFIG.max_votes} votos)`;
                 }
             }
             

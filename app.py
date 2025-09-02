@@ -15,7 +15,6 @@ import glob
 from zoneinfo import ZoneInfo
 from werkzeug.utils import secure_filename
 import shutil
-import json
 import math
 from PIL import Image, ImageDraw, ImageFont
 import io
@@ -26,7 +25,13 @@ f = open("logs.txt", "a")
 load_dotenv()
 
 
+mysql_url = os.getenv("mysql_url")
+if not mysql_url:
+    raise RuntimeError("mysql_url environment variable not set. Check your .env file.")
+
+
 app = Flask(__name__)
+
 mysql_url = os.getenv("mysql_url")
 f.write(f"{mysql_url} \n")
 print(mysql_url)
@@ -705,8 +710,12 @@ def votes():
             if vote not in votes:
                 votes[vote] = set()
             votes[vote].add(user.username)
-    print(votes)
-    return render_template("votes.html", votes=votes)
+    
+    # Sort by vote count (descending) - images with most votes first
+    votes_sorted = dict(sorted(votes.items(), key=lambda item: len(item[1]), reverse=True))
+    
+    print(f"Votes sorted by count: {[(img, len(voters)) for img, voters in votes_sorted.items()]}")
+    return render_template("votes.html", votes=votes_sorted)
 
 
 @app.route("/merged_image")
