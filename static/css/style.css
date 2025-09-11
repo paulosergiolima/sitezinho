@@ -432,12 +432,13 @@ header {
     
     .vote-mode-indicator {
         padding: 0.4rem 1rem;
-        font-size: 0.7rem;
+        font-size: 0.6rem;
         min-width: 110px;
         height: 42px;
         box-sizing: border-box;
         overflow: hidden;
     }
+
     
     .artes {
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -511,6 +512,8 @@ header {
         max-width: none;
         overflow: hidden;
     }
+
+    
     
     .artes {
         grid-template-columns: 1fr;
