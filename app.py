@@ -35,6 +35,8 @@ app = Flask(__name__)
 mysql_url = os.getenv("mysql_url")
 f.write(f"{mysql_url} \n")
 print(mysql_url)
+# Ensure images directory exists inside the container to avoid FileNotFoundError
+os.makedirs("./static/images", exist_ok=True)
 app.config["SESSION_TYPE"] = "sqlalchemy"
 app.config["SESSION_SERIALIZATION_FORMAT"] = 'json'
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_recycle": 280}
@@ -717,6 +719,148 @@ def votes():
     print(f"Votes sorted by count: {[(img, len(voters)) for img, voters in votes_sorted.items()]}")
     return render_template("votes.html", votes=votes_sorted)
 
+
+def _get_votes_data_sorted() -> dict:
+    """Build votes dict sorted by vote count (descending). Keys are image filenames.
+    Structure: { image_name: { 'count': int, 'voters': [usernames...] } }
+    """
+    votes_data: dict[str, dict] = {}
+    users = db.session.query(User).all()
+    for user in users:
+        for voted_image in user.votes:
+            if voted_image not in votes_data:
+                votes_data[voted_image] = {
+                    'count': 0,
+                    'voters': []
+                }
+            votes_data[voted_image]['count'] += 1
+            votes_data[voted_image]['voters'].append(user.username)
+    votes_data = {
+        k: v for k, v in sorted(votes_data.items(), key=lambda item: item[1]['count'], reverse=True)
+    }
+    return votes_data
+
+
+def _draw_text_wrapped(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.ImageFont, max_width: int, start_xy: tuple[int, int], line_spacing: int = 4, fill=(50, 50, 50)) -> int:
+    """Draw multi-line wrapped text within max_width. Returns bottom y after drawing."""
+    x, y = start_xy
+    words = text.split()
+    line = ""
+    for word in words:
+        test_line = word if line == "" else f"{line} {word}"
+        w, _ = draw.textbbox((0, 0), test_line, font=font)[2:4]
+        if w <= max_width:
+            line = test_line
+        else:
+            draw.text((x, y), line, font=font, fill=fill)
+            y += font.size + line_spacing
+            line = word
+    if line:
+        draw.text((x, y), line, font=font, fill=fill)
+        y += font.size + line_spacing
+    return y
+
+
+def _generate_results_image() -> Image.Image:
+    """Generate a composite PNG showing images with vote counts and voters list, similar to /count page."""
+    votes_data = _get_votes_data_sorted()
+
+    # Layout settings
+    canvas_width = 1600
+    margin = 24
+    gutter = 16
+    thumb_size = 180
+    column_gap = 24
+    text_area_width = canvas_width - (margin * 2) - thumb_size - column_gap
+
+    # Fonts
+    try:
+        title_font = ImageFont.truetype("arial.ttf", 24)
+        small_font = ImageFont.truetype("arial.ttf", 18)
+    except Exception:
+        title_font = ImageFont.load_default()
+        small_font = ImageFont.load_default()
+
+    # Pre-compute height
+    y = margin
+    draw_dummy = ImageDraw.Draw(Image.new('RGB', (canvas_width, 10)))
+    section_spacer = 18
+    total_height = y
+    for image_name, info in votes_data.items():
+        # Title + count line height
+        title_line = f"{image_name}  —  votos: {info['count']}"
+        _, _, _, h_title = draw_dummy.textbbox((0, 0), title_line, font=title_font)
+        # Voters text height (wrapped)
+        voters_text = ", ".join(sorted(info['voters'])) if info['voters'] else ""
+        # Roughly estimate wrapped height: assume ~8px per char width in default -> compute lines by measuring
+        tmp_img = Image.new('RGB', (text_area_width, 10))
+        tmp_draw = ImageDraw.Draw(tmp_img)
+        h_y = _draw_text_wrapped(tmp_draw, voters_text, small_font, text_area_width, (0, 0), line_spacing=4)
+        block_height = max(thumb_size, h_title + 8 + h_y)  # Ensure space for thumbnail
+        total_height += block_height + section_spacer
+    total_height += margin
+
+    # Create canvas
+    canvas_height = max(total_height, margin * 2 + thumb_size)
+    img = Image.new('RGB', (canvas_width, canvas_height), (250, 250, 250))
+    draw = ImageDraw.Draw(img)
+
+    # Header
+    header_text = f"Resultados — {datetime.datetime.now(ZoneInfo('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M')}"
+    draw.text((margin, y), header_text, font=title_font, fill=(20, 20, 20))
+    y += title_font.size + 12
+
+    # Sections
+    for image_name, info in votes_data.items():
+        # Thumb
+        thumb_box = (margin, y, margin + thumb_size, y + thumb_size)
+        thumb_path = os.path.join("static", "images", image_name)
+        try:
+            with Image.open(thumb_path) as im:
+                if im.mode != 'RGB':
+                    im = im.convert('RGB')
+                # Center-crop square
+                w, h = im.size
+                side = min(w, h)
+                left = (w - side) // 2
+                top = (h - side) // 2
+                im = im.crop((left, top, left + side, top + side))
+                im = im.resize((thumb_size, thumb_size), Image.Resampling.LANCZOS)
+                img.paste(im, (thumb_box[0], thumb_box[1]))
+        except Exception as e:
+            # Draw placeholder if image not found
+            draw.rectangle(thumb_box, fill=(220, 220, 220), outline=(180, 180, 180))
+            draw.text((thumb_box[0] + 8, thumb_box[1] + 8), "No image", font=small_font, fill=(80, 80, 80))
+
+        # Text area
+        text_x = margin + thumb_size + column_gap
+        text_y = y
+        title_line = f"{image_name}  —  votos: {info['count']}"
+        draw.text((text_x, text_y), title_line, font=title_font, fill=(30, 30, 30))
+        text_y += title_font.size + 8
+        voters_text = ", ".join(sorted(info['voters'])) if info['voters'] else ""
+        text_y = _draw_text_wrapped(draw, voters_text, small_font, text_area_width, (text_x, text_y), line_spacing=4, fill=(50, 50, 50))
+
+        # Advance y for next section
+        y += max(thumb_size, (text_y - (y))) + section_spacer
+
+    return img
+
+
+@app.route("/export_results_image", methods=["GET"])
+def export_results_image():
+    """Export vote results as a nicely formatted PNG image with thumbnails and voters list."""
+    try:
+        out_img = _generate_results_image()
+        buf = io.BytesIO()
+        out_img.save(buf, format='PNG')
+        buf.seek(0)
+        timestamp = datetime.datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%Y%m%d_%H%M%S")
+        filename = f"vote_results_{timestamp}.png"
+        return send_file(buf, mimetype='image/png', as_attachment=True, download_name=filename)
+    except Exception as e:
+        f.write(f"Error exporting results image: {str(e)}\n")
+        return jsonify({"success": False, "error": "Failed to export results"}), 500
 
 @app.route("/merged_image")
 def merged_image():

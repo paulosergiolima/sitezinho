@@ -8,8 +8,11 @@
     <link rel="stylesheet" href="static/css/style.css">
     <script src="static/js/main.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.3.0/dist/dom-to-image-more.min.js"></script>
 </head>
 <body class="results-body">
+    <div id="results-root">
     <!-- Results Header -->
     <header class="results-header">
         <div class="results-header-content">
@@ -108,5 +111,24 @@
             </div>
         </div>
     </div>
+    </div>
+    <script>
+        // Aguardar 'load' garante que imagens, CSS e fontes estejam prontos
+        window.addEventListener('load', function() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('export') === '1') {
+                    // Delay maior para estabilizar layout antes do print
+                    setTimeout(() => {
+                        if (typeof export_count_screenshot === 'function') {
+                            export_count_screenshot();
+                            // Aguardar mais tempo para o download iniciar antes de voltar
+                            setTimeout(() => { window.location.href = '/admin'; }, 1500);
+                        }
+                    }, 1000);
+                }
+            } catch (e) {}
+        });
+    </script>
 </body>
 </html>

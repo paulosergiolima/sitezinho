@@ -741,6 +741,12 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
+// Trigger results export from Admin panel
+function export_results() {
+  // Redirect to /count with export flag to auto-generate the screenshot
+  window.location.href = '/count?export=1';
+}
+
 /**
  * Toggle the visibility of voters list for a specific image
  * @param {string} votersId - The ID of the voters list element to toggle
@@ -786,10 +792,103 @@ function toggleVoters(votersId) {
 }
 
 
+// Export a DOM screenshot of /count preserving images and styles
+function export_count_screenshot() {
+  // Capture only the results grid, excluding the page header
+  const root = document.querySelector('.artes');
+  if (!root) {
+    alert('Seção de resultados não encontrada.');
+    return;
+  }
+  const originalBg = root.style.backgroundColor;
+  const computedBg = getComputedStyle(document.body).backgroundColor || '#ffffff';
+  root.style.backgroundColor = computedBg;
+
+  // Ensure all images are loaded
+  const imgs = Array.from(root.querySelectorAll('img'));
+  const waitForImages = imgs.map(img => new Promise(resolve => {
+    try { img.crossOrigin = 'anonymous'; } catch (e) {}
+    const done = () => resolve();
+    if (img.complete && img.naturalWidth > 0) {
+      // Try decode to ensure pixels are ready
+      if (img.decode) {
+        img.decode().then(done).catch(done);
+      } else {
+        done();
+      }
+    } else {
+      img.onload = () => {
+        if (img.decode) {
+          img.decode().then(done).catch(done);
+        } else {
+          done();
+        }
+      };
+      img.onerror = done;
+    }
+  }));
+
+  Promise.all(waitForImages).then(() => {
+    // Double RAF to let layout/paint settle antes de capturar
+    return new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  }).then(() => {
+    // Try dom-to-image-more first
+    const options = {
+      bgcolor: computedBg,
+      quality: 1,
+      style: { transform: 'none' },
+      cacheBust: true,
+      imagePlaceholder: '',
+      filter: (node) => true
+    };
+    return window.domtoimage.toPng(root, options)
+      .then(dataUrl => ({ ok: true, dataUrl }))
+      .catch(() => ({ ok: false }));
+  }).then(result => {
+    if (result.ok && result.dataUrl) {
+      const a = document.createElement('a');
+      a.href = result.dataUrl;
+      a.download = 'count_screenshot.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      root.style.backgroundColor = originalBg;
+      return;
+    }
+    // Fallback to html2canvas
+    return html2canvas(root, {
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: computedBg,
+      scale: window.devicePixelRatio < 2 ? 2 : window.devicePixelRatio,
+      logging: false
+    }).then(canvas => {
+      root.style.backgroundColor = originalBg;
+      canvas.toBlob(blob => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'count_screenshot.png';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }, 'image/png');
+    });
+  }).catch(err => {
+    root.style.backgroundColor = originalBg;
+    console.error(err);
+    alert('Falha ao capturar o print dos resultados.');
+  });
+}
+
+
 
 
 function export_merged_image() {
-  const button = document.querySelector('.export-btn');
+  // Target only the collage export button to avoid affecting the results button
+  const button = document.querySelector('.export-template .control-button.export-btn');
   const originalText = button.querySelector('.button-title').textContent;
   
   // Show loading state
