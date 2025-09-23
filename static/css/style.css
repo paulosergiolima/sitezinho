@@ -2142,70 +2142,46 @@ header {
     }
 }
 
-
-
 /* ========================================
-   EXPORT RESULTS FUNCTIONALITY
+   EXPORT COLLAGE FUNCTIONALITY
    ======================================== */
 
-/* Export Results Container - ensures full width and centers content */
-.export-results {
-    width: 100%;
-    display: flex;
-    box-sizing: border-box;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 1rem;
-    margin-top: 1rem;
-}
-
-/* Export Results Button - make the button fill the parent div */
-.export-results .control-button.export-results-btn {
-    /* Use the same gradient background as collage export */
-    background: linear-gradient(135deg, #667eea, #764ba2);
-}
-
-/* Hover effect for export results button */
-.export-results .control-button.export-results-btn:hover {
-    background: linear-gradient(135deg, #5a6fd8, #6b44a0);
-    transform: translateY(-3px);
-}
-
-/* Loading state for export results button */
-.export-results .control-button.export-results-btn.loading {
-    opacity: 0.8;
-    cursor: not-allowed;
-}
-
-.export-results .control-button.export-results-btn.loading::before {
-    content: '';
-    position: absolute;
-}
-
-/* Export button special styling (collage) */
+/* Export button special styling */
 .control-button.export-btn {
     background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
 }
 
 .control-button.export-btn:hover {
     background: linear-gradient(135deg, #5a6fd8, #6b44a0);
     transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
 }
 
 .control-button.export-btn.loading {
     opacity: 0.8;
     cursor: not-allowed;
+    pointer-events: none;
 }
 
 .control-button.export-btn.loading::before {
     content: '';
     position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shimmer 1.5s infinite;
 }
 
-/* ========================================
-   EXPORT COLLAGE FUNCTIONALITY
-   ======================================== */
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
 
 /* Export Options Panel */
 .export-options {
@@ -2223,9 +2199,6 @@ header {
     border-color: #667eea;
     box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
 }
-
-
-
 
 .options-header {
     margin-bottom: 1.5rem;
