@@ -12,7 +12,7 @@ MarkupSafe==3.0.3
 msgspec==0.19.0
 mysql-connector-python==9.4.0
 mysqlclient==2.2.7
-pymongo==4.15.1
+pymongo==4.15.2
 python-dotenv==1.1.1
 SQLAlchemy==2.0.43
 typing_extensions==4.15.0
