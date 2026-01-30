@@ -6,7 +6,7 @@ from flask_session import Session
 from dotenv import load_dotenv
 
 from sitezinho.models.database import db
-from sitezinho.services.config_service import get_single_vote_setting, get_vote_percentage_setting, set_config_value, initialize_default_configs
+from sitezinho.services.config_service import initialize_default_configs
 
 from sitezinho.routes.views import views
 from sitezinho.routes.api import api

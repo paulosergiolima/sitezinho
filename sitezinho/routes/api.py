@@ -10,8 +10,10 @@ from werkzeug.utils import secure_filename
 
 from sitezinho.models.database import db
 from sitezinho.models.user import User
+
 from sitezinho.services.config_service import get_single_vote_setting, get_vote_percentage_setting, set_config_value
 from sitezinho.services.image_service import create_merged_image
+from sitezinho.services.user_service import new_user
 
 
 api = Blueprint('api', __name__)
@@ -22,32 +24,13 @@ def vote():
         username = json_request[0].strip()
         votes = json_request[1]
         
-        # Double-check if user already exists (backend safety)
-        existing_user = db.session.execute(
-            db.select(User).where(User.username == username)
-        ).scalar_one_or_none()
-        
-        if existing_user:
-            return json.dumps({
-                "success": False, 
-                "error": "User has already voted"
-            }), 400, {"ContentType": "application/json"}
-        
-        ballot = {"Name": username, "Votes": votes}
-        #f.write(f"Person votes: {ballot}\n")
-        
-        new_user = User(
-            username=username,
-            votes=votes,
-            created=datetime.datetime.now(ZoneInfo("America/Sao_Paulo")),
-        )
-        db.session.add(new_user)
-        db.session.commit()
+        new_user(username, votes)
         session["voted"] = True
         #f.write("The result of insertion : success\n")
         return json.dumps({"success": True}), 200, {"ContentType": "application/json"}
         
     except Exception as e:
+        print(e)
         db.session.rollback()
         #f.write(f"Error in vote: {str(e)}\n")
         return json.dumps({
