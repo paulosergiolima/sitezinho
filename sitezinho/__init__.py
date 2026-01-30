@@ -46,97 +46,17 @@ app.config.update(
     SESSION_COOKIE_SAMESITE="Lax",
 )
 
-db = SQLAlchemy(app)
+from .models.database import db
+
+# Initialize db with app
+db.init_app(app)
 app.config["SESSION_SQLALCHEMY"] = db
 Session(app)
 
+# Import models after db is initialized to avoid circular imports
+from sitezinho.models.user import User
+from sitezinho.services.config_service import get_single_vote_setting, get_vote_percentage_setting, set_config_value, initialize_default_configs
 
-class User(db.Model):
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
-    votes: Mapped[list] = mapped_column(JSON)
-    created: Mapped[datetime.datetime] = mapped_column(DateTime)
-
-    def __init__(self, *, username: str, votes: list, created: datetime.datetime):
-        self.username = username
-        self.votes = votes
-        self.created = created
-
-
-class AppConfig(db.Model):
-    """Model to store application configuration settings"""
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    config_key: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
-    config_value: Mapped[str] = mapped_column(String(255), nullable=False)
-    created: Mapped[datetime.datetime] = mapped_column(DateTime)
-    updated: Mapped[datetime.datetime] = mapped_column(DateTime)
-
-    def __init__(self, *, config_key: str, config_value: str):
-        self.config_key = config_key
-        self.config_value = config_value
-        self.created = datetime.datetime.now(ZoneInfo("America/Sao_Paulo"))
-        self.updated = datetime.datetime.now(ZoneInfo("America/Sao_Paulo"))
-
-
-def get_config_value(key: str, default_value: str = None) -> str:
-    """Get configuration value from database"""
-    config = db.session.execute(
-        db.select(AppConfig).where(AppConfig.config_key == key)
-    ).scalar_one_or_none()
-    
-    if config:
-        return config.config_value
-    return default_value
-
-
-def set_config_value(key: str, value: str) -> bool:
-    """Set configuration value in database"""
-    try:
-        config = db.session.execute(
-            db.select(AppConfig).where(AppConfig.config_key == key)
-        ).scalar_one_or_none()
-        
-        if config:
-            # Update existing config
-            config.config_value = value
-            config.updated = datetime.datetime.now(ZoneInfo("America/Sao_Paulo"))
-        else:
-            # Create new config
-            config = AppConfig(config_key=key, config_value=value)
-            db.session.add(config)
-        
-        db.session.commit()
-        return True
-    except Exception as e:
-        db.session.rollback()
-        f.write(f"Error setting config {key}: {str(e)}\n")
-        return False
-
-
-def get_single_vote_setting() -> bool:
-    """Get single vote setting from database"""
-    value = get_config_value("single_vote", "True")
-    return value.lower() == "true"
-
-
-def get_vote_percentage_setting() -> int:
-    """Get vote percentage setting from database"""
-    value = get_config_value("vote_percentage", "50")
-    try:
-        return int(value)
-    except ValueError:
-        return 50
-
-
-def initialize_default_configs():
-    """Initialize default configuration values if they don't exist"""
-    # Set default single_vote if not exists
-    if not get_config_value("single_vote"):
-        set_config_value("single_vote", "True")
-    
-    # Set default vote_percentage if not exists  
-    if not get_config_value("vote_percentage"):
-        set_config_value("vote_percentage", "50")
 
 
 def create_merged_image(images_dir="./static/images", fixed_size=None, background_color=(240, 240, 240), gap_between_images=2):

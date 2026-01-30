@@ -1,0 +1,11 @@
+[project]
+name = "sitezinho"
+version = "0.1.0"
+description = "A simple Flask web application"
+dependencies = [
+    "flask",
+]
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"
