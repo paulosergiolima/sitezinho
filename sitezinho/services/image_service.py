@@ -157,6 +157,8 @@ def create_merged_image(images_dir="./static/images", fixed_size=None, backgroun
     except Exception as e:
         #f.write(f"Error creating merged image: {str(e)}\n")
         # Return a simple error image with fixed size
+        if fixed_size is None:
+            fixed_size = (800, 400)
         error_image = Image.new('RGB', fixed_size, (255, 100, 100))
         draw = ImageDraw.Draw(error_image)
         try:

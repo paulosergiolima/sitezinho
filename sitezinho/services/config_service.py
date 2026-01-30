@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 from sitezinho.models.database import db
 from sitezinho.models.appConfig import AppConfig
 
-def get_config_value(key: str, default_value: str = None) -> str:
+def get_config_value(key: str, default_value: str | None = None) -> str | None:
     """Get configuration value from database"""
     config = db.session.execute(
         db.select(AppConfig).where(AppConfig.config_key == key)

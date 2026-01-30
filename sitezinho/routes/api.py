@@ -62,7 +62,7 @@ def insert():
     errors = []
     
     for uploaded_file in uploaded_files:
-        if uploaded_file.filename == "":
+        if not uploaded_file.filename:
             continue
             
         filename = secure_filename(uploaded_file.filename)
@@ -234,6 +234,12 @@ def delete_images():
     It removes all files except the directory itself.
     """
     try:
+        if not current_app.static_folder:
+            return json.dumps({
+                "success": False, 
+                "error": "Static folder not configured"
+            }), 500, {"ContentType": "application/json"}
+
         images_dir = os.path.join(current_app.static_folder, 'images')
         
         if not os.path.exists(images_dir):
