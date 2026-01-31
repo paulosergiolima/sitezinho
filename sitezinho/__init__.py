@@ -18,7 +18,7 @@ load_dotenv()
 
 mysql_url = os.getenv("mysql_url")
 if not mysql_url:
-    raise RuntimeError("mysql_url environment variable not set. Check your .env file.")
+    raise RuntimeError("mysql_url environment variable not set. Check .env")
 
 
 app = Flask(__name__)
@@ -46,7 +46,6 @@ with app.app_context():
     db.create_all()
     # Initialize default configurations
     initialize_default_configs()
-
 
 
 app.register_blueprint(views)

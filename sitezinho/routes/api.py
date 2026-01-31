@@ -81,12 +81,12 @@ def insert():
                     for zip_file in zip_files:
                         # Skip directories and non-image files
                         if not zip_file.endswith('/') and allowed_file(zip_file):
-                            # Extract to static/images with secure filename
+                            # Extract to sitezinho/static/images with secure filename
                             secure_name = secure_filename(os.path.basename(zip_file))
                             if secure_name:  # Make sure filename is not empty
                                 zip_ref.extract(zip_file, "temp")
                                 temp_file_path = os.path.join("temp", zip_file)
-                                final_path = os.path.join("static/images", secure_name)
+                                final_path = os.path.join("sitezinho/static/images", secure_name)
                                 
                                 # Move file to final destination
                                 os.rename(temp_file_path, final_path)
@@ -101,7 +101,7 @@ def insert():
         elif allowed_file(filename):
             # Handle individual image file
             try:
-                file_path = os.path.join("static/images", filename)
+                file_path = os.path.join("sitezinho/static/images", filename)
                 uploaded_file.save(file_path)
                 processed_files.append(filename)
                 
@@ -230,7 +230,7 @@ def delete_vote():
 @api.route("/delete_images", methods=["DELETE"])
 def delete_images():
     """
-    This function deletes all images from the static/images directory.
+    This function deletes all images from the sitezinho/static/images directory.
     It removes all files except the directory itself.
     """
     try:
@@ -319,7 +319,7 @@ def check_user():
 @api.route("/merged_image")
 def merged_image():
     """
-    Generate and return a merged image containing all images from the static/images directory.
+    Generate and return a merged image containing all images from the sitezinho/static/images directory.
     All images are cropped to squares and have exactly the same size with uniform spacing.
     Layout uses minimum 6 columns and automatically adjusts canvas size unless specified.
     
@@ -335,7 +335,7 @@ def merged_image():
     """
     try:
         # List and count images for logging
-        images = os.listdir("./static/images")
+        images = os.listdir("./sitezinho/static/images")
         #f.write(f"Starting image merge process with {len(images)} files in directory\n")
 
         # Get query parameters with defaults
@@ -362,7 +362,7 @@ def merged_image():
         
         # Create the merged image
         merged_img = create_merged_image(
-            images_dir="./static/images",
+            images_dir="./sitezinho/static/images",
             fixed_size=fixed_size,
             background_color=(240, 240, 240),  # Light gray background
             gap_between_images=gap

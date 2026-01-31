@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw, ImageFont
 import math
 
 
-def create_merged_image(images_dir="./static/images", fixed_size=None, background_color=(240, 240, 240), gap_between_images=2):
+def create_merged_image(images_dir="./sitezinho/static/images", fixed_size=None, background_color=(240, 240, 240), gap_between_images=2):
     """
     Create a single image with fixed dimensions by combining all images from the specified directory.
     The function automatically calculates the best grid layout and image sizes to fit the fixed canvas.
