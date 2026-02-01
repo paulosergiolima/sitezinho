@@ -1,7 +1,12 @@
+from functools import lru_cache
 from os.path import isfile, join
 from os import listdir
 from PIL import Image, ImageDraw, ImageFont
 import math
+
+@lru_cache(maxsize=1)
+def get_image_files() -> list[str]:
+    return [f for f in listdir("./sitezinho/static/images") if isfile(join("./sitezinho/static/images", f))]
 
 
 def create_merged_image(images_dir="./sitezinho/static/images", fixed_size=None, background_color=(240, 240, 240), gap_between_images=2):

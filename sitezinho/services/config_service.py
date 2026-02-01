@@ -1,4 +1,5 @@
 import datetime
+from functools import lru_cache
 from zoneinfo import ZoneInfo
 from sitezinho.models.database import db
 from sitezinho.models.appConfig import AppConfig
@@ -38,7 +39,7 @@ def set_config_value(key: str, value: str) -> bool:
         #f.write(f"Error setting config {key}: {str(e)}\n")
         return False
 
-
+@lru_cache(maxsize=128)
 def get_single_vote_setting() -> bool:
     """Get single vote setting from database"""
     value = get_config_value("single_vote", "True")
@@ -46,7 +47,7 @@ def get_single_vote_setting() -> bool:
         return True
     return value.lower() == "true"
 
-
+@lru_cache(maxsize=128)
 def get_vote_percentage_setting() -> int:
     """Get vote percentage setting from database"""
     value = get_config_value("vote_percentage", "50")

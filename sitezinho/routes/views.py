@@ -1,32 +1,26 @@
-import datetime
 import math
-from os import listdir
-from os.path import isfile,join
-from zoneinfo import ZoneInfo
 from flask import Blueprint, json, render_template, session
 from sqlalchemy import func
 
 from sitezinho.models.user import User, Vote
 from sitezinho.services.config_service import get_single_vote_setting, get_vote_percentage_setting
 from sitezinho.models.database import db
+from sitezinho.services.image_service import get_image_files
 
 views = Blueprint('views', __name__,template_folder='templates')
 
 
 @views.route('/')
-def hello_world():
-    onlyfiles = [
-        f for f in listdir("./sitezinho/static/images") if isfile(join("./sitezinho/static/images", f))
-    ]
-    count = len(onlyfiles)
-    print(datetime.datetime.now(ZoneInfo("America/Sao_Paulo")).second)
+def hello_world() -> str:
+    onlyfiles: list[str] = get_image_files()
+    count: int = len(onlyfiles)
 
     # Get current settings from database
-    single_vote = get_single_vote_setting()
-    vote_percentage = get_vote_percentage_setting()
+    single_vote: bool = get_single_vote_setting()
+    vote_percentage: int = get_vote_percentage_setting()
 
     # Create vote configuration JSON
-    vote_config_json = json.dumps({
+    vote_config_json: str = json.dumps({
         "single_vote": single_vote,
         "percentage": vote_percentage,
         "total_images": count,
@@ -44,9 +38,9 @@ def hello_world():
 
 
 @views.route("/count")
-def count():
+def count() -> str:
     # Dictionary to store vote count and voters for each image
-    votes_data = {}
+    votes_data: dict[str, dict[str,list[str]]] = {}
     vote_counts = (
         db.session.query(
             Vote.image_name,
@@ -63,6 +57,7 @@ def count():
             'count': vote_count,
             'voters': voters.split(',') if voters else []
         }
+    
 
     return render_template("count.html", images=votes_data)
 
@@ -77,13 +72,11 @@ def admin():
     _upload_errors = session.pop('upload_errors', None)
 
     # Get image count for admin
-    onlyfiles = [
-        f for f in listdir("./sitezinho/static/images") if isfile(join("./sitezinho/static/images", f))
-    ]
-    image_count = len(onlyfiles)
+    onlyfiles: list[str] = get_image_files()
+    image_count: int = len(onlyfiles)
 
     # Get current settings from database
-    vote_percentage = get_vote_percentage_setting()
+    vote_percentage: int = get_vote_percentage_setting()
 
     return render_template("admin.html", count=count_votes, users=users, vote_percentage=vote_percentage, image_count=image_count)
 

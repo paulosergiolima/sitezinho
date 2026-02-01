@@ -2,7 +2,6 @@ import datetime
 from typing import List
 from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.types import JSON
 from .database import db
 
 class User(db.Model):
@@ -10,7 +9,7 @@ class User(db.Model):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
-    votes: Mapped[List["Vote"]] = relationship(back_populates="user")
+    votes: Mapped[List["Vote"]] = relationship(back_populates="user", cascade="all, delete")
     created: Mapped[datetime.datetime] = mapped_column(DateTime)
 
 

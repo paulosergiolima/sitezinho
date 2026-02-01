@@ -2,7 +2,6 @@ import datetime
 from zoneinfo import ZoneInfo
 from sqlalchemy import DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.types import JSON
 from sitezinho.models.database import db
 
 class AppConfig(db.Model):

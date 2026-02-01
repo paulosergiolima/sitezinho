@@ -12,7 +12,7 @@ from sitezinho.models.database import db
 from sitezinho.models.user import User
 
 from sitezinho.services.config_service import get_single_vote_setting, get_vote_percentage_setting, set_config_value
-from sitezinho.services.image_service import create_merged_image
+from sitezinho.services.image_service import create_merged_image, get_image_files
 from sitezinho.services.user_service import new_user
 
 
@@ -121,6 +121,8 @@ def insert():
                                   ("..." if len(processed_files) > 3 else "")
     if errors:
         session['upload_errors'] = errors
+
+    get_image_files.cache_clear()
     
     return redirect("/")
 @api.route("/delete", methods=["DELETE"])
