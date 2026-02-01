@@ -2,13 +2,15 @@ import datetime
 from zoneinfo import ZoneInfo
 from flask import json
 
-from sitezinho.models.user import User
+from sitezinho.models.user import User, Vote
 from sitezinho.models.database import db
 
 
-def new_user(username: str, votes):
-    print(type(votes))
+def new_user(username: str, votes: list):
+    date = datetime.datetime.now(ZoneInfo("America/Sao_Paulo"))
+    print(votes)
     print(username, votes)
+    
     existing_user = db.session.execute(
                 db.select(User).where(User.username == username)
             ).scalar_one_or_none()
@@ -23,9 +25,10 @@ def new_user(username: str, votes):
     #f.write(f"Person votes: {ballot}\n")
     
     new_user = User(
-        username=username,
-        votes=votes,
-        created=datetime.datetime.now(ZoneInfo("America/Sao_Paulo")),
+        username=username, # type: ignore
+        created=datetime.datetime.now(ZoneInfo("America/Sao_Paulo")), # type: ignore
     )
+    vote_instances: list[Vote] = [Vote(image_name=image_name,created=date,user=new_user) for image_name in votes] # pyright: ignore[reportCallIssue]
     db.session.add(new_user)
+    db.session.add_all(vote_instances)
     db.session.commit()

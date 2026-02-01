@@ -4,8 +4,9 @@ from os import listdir
 from os.path import isfile,join
 from zoneinfo import ZoneInfo
 from flask import Blueprint, json, render_template, session
+from sqlalchemy import func
 
-from sitezinho.models.user import User
+from sitezinho.models.user import User, Vote
 from sitezinho.services.config_service import get_single_vote_setting, get_vote_percentage_setting
 from sitezinho.models.database import db
 
@@ -46,25 +47,22 @@ def hello_world():
 def count():
     # Dictionary to store vote count and voters for each image
     votes_data = {}
-
-    # Get all users who voted
-    users = db.session.execute(db.select(User).order_by(User.username)).scalars()
-
-    # Process each user's votes
-    for user in users:
-        for voted_image in user.votes:
-            if voted_image not in votes_data:
-                votes_data[voted_image] = {
-                    'count': 0,
-                    'voters': []
-                }
-            votes_data[voted_image]['count'] += 1
-            votes_data[voted_image]['voters'].append(user.username)
-
-    # Sort by vote count (descending)
-    votes_data = {
-        k: v for k, v in sorted(votes_data.items(), key=lambda item: item[1]['count'], reverse=True)
-    }
+    vote_counts = (
+        db.session.query(
+            Vote.image_name,
+            func.count(Vote.id).label('vote_count'),
+            func.group_concat(User.username).label('voters')
+        )
+        .join(User, Vote.user_id == User.id)
+        .group_by(Vote.image_name)
+        .order_by(func.count(Vote.id).desc())
+        .all()
+    )
+    for image_name, vote_count, voters in vote_counts:
+        votes_data[image_name] = {
+            'count': vote_count,
+            'voters': voters.split(',') if voters else []
+        }
 
     return render_template("count.html", images=votes_data)
 
@@ -92,16 +90,20 @@ def admin():
 
 @views.route("/votes")
 def votes():
-    votes = {}
-    users = db.session.query(User).all()
-    for user in users:
-        for vote in user.votes:
-            if vote not in votes:
-                votes[vote] = set()
-            votes[vote].add(user.username)
+    
+    vote_counts = (
+        db.session.query(
+            Vote.image_name,
+            func.group_concat(User.username).label('voters')
+        )
+        .join(User, Vote.user_id == User.id)
+        .group_by(Vote.image_name)
+        .order_by(func.count(Vote.id).desc())
+        .all()
+    )
+    votes_data = {}
+    for image_name, voters in vote_counts:
+            votes_data[image_name] = set(voters.split(',')) if voters else set()
 
-    # Sort by vote count (descending) - images with most votes first
-    votes_sorted = dict(sorted(votes.items(), key=lambda item: len(item[1]), reverse=True))
-
-    print(f"Votes sorted by count: {[(img, len(voters)) for img, voters in votes_sorted.items()]}")
-    return render_template("votes.html", votes=votes_sorted)
+    print(f"Votes sorted by count: {[(img, len(voters)) for img, voters in votes_data.items()]}")
+    return render_template("votes.html", votes=votes_data)

@@ -23,6 +23,7 @@ def vote():
         json_request = request.json
         username = json_request[0].strip()
         votes = json_request[1]
+        print(type(votes))
         
         new_user(username, votes)
         session["voted"] = True

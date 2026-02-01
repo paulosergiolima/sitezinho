@@ -42,12 +42,16 @@ def set_config_value(key: str, value: str) -> bool:
 def get_single_vote_setting() -> bool:
     """Get single vote setting from database"""
     value = get_config_value("single_vote", "True")
+    if not value:
+        return True
     return value.lower() == "true"
 
 
 def get_vote_percentage_setting() -> int:
     """Get vote percentage setting from database"""
     value = get_config_value("vote_percentage", "50")
+    if not value:
+        return 50
     try:
         return int(value)
     except ValueError:
@@ -59,7 +63,7 @@ def initialize_default_configs():
     # Set default single_vote if not exists
     if not get_config_value("single_vote"):
         set_config_value("single_vote", "True")
-    
-    # Set default vote_percentage if not exists  
+
+    # Set default vote_percentage if not exists
     if not get_config_value("vote_percentage"):
         set_config_value("vote_percentage", "50")
