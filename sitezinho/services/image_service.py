@@ -1,12 +1,20 @@
 from functools import lru_cache
+import glob
+import os
 from os.path import isfile, join
 from os import listdir
+import shutil
+import zipfile
 from PIL import Image, ImageDraw, ImageFont
 import math
+from flask import current_app
+from werkzeug.utils import secure_filename
 
 @lru_cache(maxsize=1)
 def get_image_files() -> list[str]:
-    return [f for f in listdir("./sitezinho/static/images") if isfile(join("./sitezinho/static/images", f))]
+    image_files = [f for f in listdir("./sitezinho/static/images") if isfile(join("./sitezinho/static/images", f))]
+    print(f"this is inside image_service {image_files}")
+    return image_files
 
 
 def create_merged_image(images_dir="./sitezinho/static/images", fixed_size=None, background_color=(240, 240, 240), gap_between_images=2):
@@ -173,3 +181,107 @@ def create_merged_image(images_dir="./sitezinho/static/images", fixed_size=None,
         except:
             draw.text((fixed_size[0]//2 - 80, fixed_size[1]//2), "Error creating image", fill=(255, 255, 255))
         return error_image
+    
+def allowed_file(filename: str, allowed_extensions: set[str]):
+    """Check if file has allowed extension"""
+    return '.' in filename and \
+            filename.rsplit('.', 1)[1].lower() in allowed_extensions
+    
+def is_zip_file(filename):
+    """Check if file is a ZIP file"""
+    return filename.lower().endswith('.zip')
+
+def insert_images(uploaded_files: list):
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'}
+     
+    # Get uploaded files (can be multiple)
+    
+    
+    # Track processed files for feedback
+    processed_files = []
+    errors = []
+    
+    for uploaded_file in uploaded_files:
+        if not uploaded_file.filename:
+            continue
+            
+        filename = secure_filename(uploaded_file.filename)
+        
+        if is_zip_file(filename):
+            # Handle ZIP file - extract all images
+            try:
+                zip_path = os.path.join("temp", filename)
+                os.makedirs("temp", exist_ok=True)
+                uploaded_file.save(zip_path)
+                
+                with zipfile.ZipFile(zip_path, "r") as zip_ref:
+                    # Get list of files in ZIP
+                    zip_files = zip_ref.namelist()
+                    
+                    for zip_file in zip_files:
+                        # Skip directories and non-image files
+                        if not zip_file.endswith('/') and allowed_file(zip_file, ALLOWED_EXTENSIONS):
+                            # Extract to sitezinho/static/images with secure filename
+                            secure_name = secure_filename(os.path.basename(zip_file))
+                            if secure_name:  # Make sure filename is not empty
+                                zip_ref.extract(zip_file, "temp")
+                                temp_file_path = os.path.join("temp", zip_file)
+                                final_path = os.path.join("sitezinho/static/images", secure_name)
+                                
+                                # Move file to final destination
+                                os.rename(temp_file_path, final_path)
+                                processed_files.append(secure_name)
+                
+                # Clean up temp ZIP file
+                os.remove(zip_path)
+                
+            except Exception as e:
+                errors.append(f"Erro ao processar ZIP {filename}: {str(e)}")
+                
+        elif allowed_file(filename, ALLOWED_EXTENSIONS):
+            # Handle individual image file
+            try:
+                file_path = os.path.join("sitezinho/static/images", filename)
+                uploaded_file.save(file_path)
+                processed_files.append(filename)
+                
+            except Exception as e:
+                errors.append(f"Erro ao salvar {filename}: {str(e)}")
+        else:
+            errors.append(f"Arquivo não suportado: {filename}")
+    
+    # Clean up temp directory if it exists
+    if os.path.exists("temp"):
+        shutil.rmtree("temp")
+
+    get_image_files.cache_clear()
+    
+    # Store results in session for feedback
+    if processed_files:
+         return f"Processados {len(processed_files)} arquivo(s): {', '.join(processed_files[:3])}" + \
+                                  ("..." if len(processed_files) > 3 else "")
+    if errors:
+        return errors
+
+    
+
+def delete_files(image_folder):
+    images_dir = os.path.join(image_folder, 'images')
+    
+    
+    # Get list of files before deletion for logging
+    files_before = glob.glob(os.path.join(images_dir, '*'))
+    files_count = len([f for f in files_before if os.path.isfile(f)])
+    
+    # Delete all files in the images directory
+    for file_path in files_before:
+        if os.path.isfile(file_path):
+            try:
+                os.remove(file_path)
+                #f.write(f"Deleted image: {file_path}\n")
+            except Exception as e:
+                #f.write(f"Error deleting {file_path}: {str(e)}\n")
+                continue
+    get_image_files.cache_clear()
+    return files_count
+        

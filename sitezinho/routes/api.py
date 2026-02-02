@@ -2,18 +2,15 @@ import datetime
 import glob
 import io
 import os
-import shutil
-import zipfile
 from zoneinfo import ZoneInfo
 from flask import Blueprint, json, jsonify, redirect, request, send_file, session, current_app
-from werkzeug.utils import secure_filename
 
 from sitezinho.models.database import db
 from sitezinho.models.user import User
 
 from sitezinho.services.config_service import get_single_vote_setting, get_vote_percentage_setting, set_config_value
-from sitezinho.services.image_service import create_merged_image, get_image_files
-from sitezinho.services.user_service import new_user
+from sitezinho.services.image_service import create_merged_image, delete_files, insert_images
+from sitezinho.services.user_service import delete_votes, new_user
 
 
 api = Blueprint('api', __name__)
@@ -44,101 +41,15 @@ def vote():
 def insert():
   
     # Define allowed image extensions
-    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff'}
-    
-    def allowed_file(filename):
-        """Check if file has allowed extension"""
-        return '.' in filename and \
-               filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-    
-    def is_zip_file(filename):
-        """Check if file is a ZIP file"""
-        return filename.lower().endswith('.zip')
-    
-    # Get uploaded files (can be multiple)
     uploaded_files = request.files.getlist("file")
-    
-    # Track processed files for feedback
-    processed_files = []
-    errors = []
-    
-    for uploaded_file in uploaded_files:
-        if not uploaded_file.filename:
-            continue
-            
-        filename = secure_filename(uploaded_file.filename)
-        
-        if is_zip_file(filename):
-            # Handle ZIP file - extract all images
-            try:
-                zip_path = os.path.join("temp", filename)
-                os.makedirs("temp", exist_ok=True)
-                uploaded_file.save(zip_path)
-                
-                with zipfile.ZipFile(zip_path, "r") as zip_ref:
-                    # Get list of files in ZIP
-                    zip_files = zip_ref.namelist()
-                    
-                    for zip_file in zip_files:
-                        # Skip directories and non-image files
-                        if not zip_file.endswith('/') and allowed_file(zip_file):
-                            # Extract to sitezinho/static/images with secure filename
-                            secure_name = secure_filename(os.path.basename(zip_file))
-                            if secure_name:  # Make sure filename is not empty
-                                zip_ref.extract(zip_file, "temp")
-                                temp_file_path = os.path.join("temp", zip_file)
-                                final_path = os.path.join("sitezinho/static/images", secure_name)
-                                
-                                # Move file to final destination
-                                os.rename(temp_file_path, final_path)
-                                processed_files.append(secure_name)
-                
-                # Clean up temp ZIP file
-                os.remove(zip_path)
-                
-            except Exception as e:
-                errors.append(f"Erro ao processar ZIP {filename}: {str(e)}")
-                
-        elif allowed_file(filename):
-            # Handle individual image file
-            try:
-                file_path = os.path.join("sitezinho/static/images", filename)
-                uploaded_file.save(file_path)
-                processed_files.append(filename)
-                
-            except Exception as e:
-                errors.append(f"Erro ao salvar {filename}: {str(e)}")
-        else:
-            errors.append(f"Arquivo não suportado: {filename}")
-    
-    # Clean up temp directory if it exists
-    if os.path.exists("temp"):
-        shutil.rmtree("temp")
-    
-    # Store results in session for feedback
-    if processed_files:
-        session['upload_success'] = f"Processados {len(processed_files)} arquivo(s): {', '.join(processed_files[:3])}" + \
-                                  ("..." if len(processed_files) > 3 else "")
-    if errors:
-        session['upload_errors'] = errors
-
-    get_image_files.cache_clear()
+    print(uploaded_files)
+    insert_images(uploaded_files)
     
     return redirect("/")
 @api.route("/delete", methods=["DELETE"])
-def delete_votes():
-    """
-    This function deletes all votes from the database.
-    It clears the session and writes the session values to the log file.
-    """
-    db.session.query(User).delete()
-    print(session)
-    #f.write(f'{session.values}')
-    #f.write("----")
+def delete():
+    delete_votes()
     session.clear()
-    #f.write(f'{session.values}')
-    print(session)
-    db.session.commit()
     return json.dumps({"success": True}), 200, {"ContentType": "application/json"}
 
 
@@ -232,58 +143,20 @@ def delete_vote():
 
 @api.route("/delete_images", methods=["DELETE"])
 def delete_images():
-    """
-    This function deletes all images from the sitezinho/static/images directory.
-    It removes all files except the directory itself.
-    """
-    try:
-        if not current_app.static_folder:
-            return json.dumps({
-                "success": False, 
-                "error": "Static folder not configured"
-            }), 500, {"ContentType": "application/json"}
-
-        images_dir = os.path.join(current_app.static_folder, 'images')
+    if not current_app.static_folder:
+         return json.dumps({
+            "success": False, 
+            "error": "TODO better error msg"
+        }), 500, {"ContentType": "application/json"}
+    
+    files_count = delete_files(current_app.static_folder)
+    session['upload_success'] = f"Todas as {files_count} imagens foram removidas com sucesso!"
         
-        if not os.path.exists(images_dir):
-            return json.dumps({
-                "success": False, 
-                "error": "Images directory not found"
-            }), 404, {"ContentType": "application/json"}
-        
-        # Get list of files before deletion for logging
-        files_before = glob.glob(os.path.join(images_dir, '*'))
-        files_count = len([f for f in files_before if os.path.isfile(f)])
-        
-        # Delete all files in the images directory
-        for file_path in files_before:
-            if os.path.isfile(file_path):
-                try:
-                    os.remove(file_path)
-                    #f.write(f"Deleted image: {file_path}\n")
-                except Exception as e:
-                    #f.write(f"Error deleting {file_path}: {str(e)}\n")
-                    continue
-        
-        # Store success message in session
-        session['upload_success'] = f"Todas as {files_count} imagens foram removidas com sucesso!"
-        
-        #f.write(f"Successfully deleted {files_count} images from {images_dir}\n")
-        
-        return json.dumps({
+    return json.dumps({
             "success": True, 
             "deleted_count": files_count
         }), 200, {"ContentType": "application/json"}
         
-    except Exception as e:
-        error_msg = f"Error deleting images: {str(e)}"
-        #f.write(f"{error_msg}\n")
-        session['upload_errors'] = [error_msg]
-        
-        return json.dumps({
-            "success": False, 
-            "error": "TODO better error msg"
-        }), 500, {"ContentType": "application/json"}
 
 
 @api.route("/voted")
@@ -317,7 +190,7 @@ def check_user():
         
     except Exception as e:
         print("error")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Sad error :()"}), 500
 
 @api.route("/merged_image")
 def merged_image():

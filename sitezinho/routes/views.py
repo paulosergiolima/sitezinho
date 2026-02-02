@@ -13,6 +13,7 @@ views = Blueprint('views', __name__,template_folder='templates')
 @views.route('/')
 def hello_world() -> str:
     onlyfiles: list[str] = get_image_files()
+    print(f"this is inside views.py {onlyfiles}")
     count: int = len(onlyfiles)
 
     # Get current settings from database
