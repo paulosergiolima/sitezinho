@@ -1,7 +1,3 @@
-// Global variables for vote configuration (set by template)
-
-// Initialize page and modal event listeners when page loads
-
 /**
  * Toggle the visibility of voters list for a specific image
  * @param {string} votersId - The ID of the voters list element to toggle

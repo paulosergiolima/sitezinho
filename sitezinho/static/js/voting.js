@@ -1,5 +1,5 @@
 import { clearAllCheckboxes } from "./utils.js";
-import {$} from "jquery";
+
 async function vote() {
   try {
     const username = prompt("Qual seu usuário?");
@@ -88,8 +88,6 @@ async function vote() {
     }, 100);
   }
 }
-var vote_button = document.getElementById("vote")
-vote_button.addEventListener('click', vote)
 
 let single_vote = window.VOTE_CONFIG?.single_vote || false;
 
@@ -110,3 +108,9 @@ if (single_vote == true) {
     }
   });
 }
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  var vote_button = document.getElementById("vote")
+  vote_button.addEventListener('click', vote)
+})
