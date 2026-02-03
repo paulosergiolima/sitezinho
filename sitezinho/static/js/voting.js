@@ -1,28 +1,4 @@
-function clearAllCheckboxes() {
-  const checkboxes = document.querySelectorAll("input[type='checkbox']");
-  checkboxes.forEach(checkbox => {
-    checkbox.checked = false;
-    // Force trigger change event to update any UI that depends on checkbox state
-    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-  });
-}
-  console.log('All checkboxes cleared');
-function initializePage() {
-  // Clear all checkboxes on page load (mobile cache fix)
-  clearAllCheckboxes();
-  
-  // Verify checkboxes are actually cleared
-  const checkedBoxes = document.querySelectorAll("input[type='checkbox']:checked");
-  if (checkedBoxes.length > 0) {
-    console.warn(`Warning: ${checkedBoxes.length} checkboxes still checked after initialization`);
-    // Force clear again if needed
-    checkedBoxes.forEach(box => box.checked = false);
-  }
-  
-  console.log('Page initialized - all checkboxes cleared');
-  
-  // Update vote counter if in multiple choice mode
-}
+import { clearAllCheckboxes } from "./utils.js";
 async function vote() {
   try {
     const username = prompt("Qual seu usuário?");
@@ -111,3 +87,5 @@ async function vote() {
     }, 100);
   }
 }
+var vote_button = document.getElementById("vote")
+vote_button.addEventListener('click', vote)
