@@ -6,7 +6,7 @@
     <title>Painel Administrativo - Artebonitinha</title>
     <link rel="icon" type="image/png" href="static/assets/arte.png">
     <link rel="stylesheet" href="static/css/style.css">
-    <script src="static/js/main.js"></script>
+    <script src="static/js/admin.js"></script>
 </head>
 <body class="admin-body">
     <!-- Admin Header -->
@@ -98,7 +98,7 @@
             </div>
 
             <div class="export-template">
-                <button onclick="export_merged_image()" class="control-button export-btn">
+                <button id="export_merged_image" class="control-button export-btn">
                     <span>🎨</span>
                     <div class="button-content">
                         <div class="button-title">Exportar Collage</div>
@@ -140,7 +140,7 @@
             </div>
             
             <div class="vote-controls">
-                <button onclick="change_vote_unique()" class="control-button unique">
+                <button id="change_vote_unique" class="control-button unique">
                     <span>🔘</span>
                     <div class="button-content">
                         <div class="button-title">Escolha Única</div>
@@ -148,7 +148,7 @@
                     </div>
                 </button>
                 
-                <button onclick="change_vote_multiple()" class="control-button multiple">
+                <button id="change_vote_multiple" class="control-button multiple">
                     <span>☑️</span>
                     <div class="button-content">
                         <div class="button-title">Múltipla Escolha</div>
@@ -168,7 +168,7 @@
                     <div class="input-with-button">
                         <input type="number" id="votePercentage" min="1" max="100" value="{{ vote_percentage }}" />
                         <span class="percentage-symbol">%</span>
-                        <button onclick="setVotePercentage()" class="btn btn-small">Aplicar</button>
+                        <button id="setVotePercentage" class="btn btn-small">Aplicar</button>
                     </div>
                     <div class="percentage-info">
                         <small>Atual: <strong>{{ vote_percentage }}%</strong> (máximo <span id="maxVotesDisplay">{{ (image_count * vote_percentage / 100)|round|int }}</span> votos de {{ image_count }} imagens)</small>
@@ -178,7 +178,7 @@
             
             <div class="vote-controls">
                 
-                <button onclick="delete_votes()" class="control-button danger">
+                <button id="delete_votes" class="control-button danger">
                     <span>🗑️</span>
                     <div class="button-content">
                         <div class="button-title">Limpar Votos</div>
@@ -186,7 +186,7 @@
                     </div>
                 </button>
                 
-                <button onclick="delete_images()" class="control-button danger">
+                <button id="delete_images" class="control-button danger">
                     <span>🖼️</span>
                     <div class="button-content">
                         <div class="button-title">Remover Imagens</div>
