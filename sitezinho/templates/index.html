@@ -16,7 +16,8 @@
     <!-- CSS and JavaScript files -->
     <link rel="stylesheet" href="static/css/style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <script src="static/js/main.js"></script>
+    <script src="static/js/voting.js" type="module"></script>
+    <script src="static/js/modal.js" type="module"></script>
 </head>
 
 <header>
@@ -27,7 +28,7 @@
         </div>
     </div>
     <div class="header-buttons">
-        <button onclick="vote()" class="vote-btn">votar</button>
+        <button id="vote" class="vote-btn">votar</button>
         <span class="vote-mode-indicator">
             {% if unique_vote %}
                 🔘 Escolha única
@@ -51,7 +52,7 @@
                             <span class="checkbox-custom"></span>
                         </div>
                     </div>
-                    <button class="view-fullscreen-btn" onclick="openModal('static/images/{{image}}', '{{image}}')">
+                    <button id="openModal" class="view-fullscreen-btn" onclick="openModal('static/images/{{image}}', '{{image}}')">
                         <span class="btn-icon"></span>
                         ver em tela cheia
                     </button>

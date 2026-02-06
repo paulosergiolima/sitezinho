@@ -8,3 +8,4 @@ mysql_data
 docker-compose.yml
 Dockerfile
 .dockerignore
+node_modules
