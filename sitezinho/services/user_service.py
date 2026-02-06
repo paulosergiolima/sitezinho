@@ -34,5 +34,6 @@ def new_user(username: str, votes: list):
     db.session.commit()
 
 def delete_votes():
+    db.session.query(Vote).delete()
     db.session.query(User).delete()
     db.session.commit()
