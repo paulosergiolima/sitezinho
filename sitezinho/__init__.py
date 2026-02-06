@@ -51,5 +51,4 @@ def create_app():
 
     app.register_blueprint(views)
     app.register_blueprint(api)
-
-app = create_app()
+    return app
