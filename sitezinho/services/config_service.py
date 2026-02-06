@@ -32,6 +32,8 @@ def set_config_value(key: str, value: str) -> bool:
             db.session.add(config)
         
         db.session.commit()
+        get_vote_percentage_setting.cache_clear()
+        get_single_vote_setting.cache_clear()
         return True
     except Exception as e:
         db.session.rollback()
