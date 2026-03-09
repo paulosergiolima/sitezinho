@@ -11,16 +11,31 @@ from sitezinho.services.config_service import initialize_default_configs
 from sitezinho.routes.views import views
 from sitezinho.routes.api import api
 
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+from opentelemetry import metrics
+from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+
+from prometheus_flask_exporter import PrometheusMetrics
+
+
 def create_app():
     FILENAME = "artes.zip"
     f = open("logs.txt", "a")
     load_dotenv()
 
-
     mysql_url = os.getenv("mysql_url")
+    #otlp_collector = os.getenv("otlp_collector")
     if not mysql_url:
         raise RuntimeError("mysql_url environment variable not set. Check .env")
-
 
     app = Flask(__name__)
 
@@ -47,7 +62,6 @@ def create_app():
         db.create_all()
         # Initialize default configurations
         initialize_default_configs()
-
 
     app.register_blueprint(views)
     app.register_blueprint(api)
