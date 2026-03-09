@@ -5,7 +5,5 @@ logs.txt
 .env
 artes.zip
 mysql_data
-docker-compose.yml
-Dockerfile
 .dockerignore
 node_modules
